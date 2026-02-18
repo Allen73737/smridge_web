@@ -1,0 +1,222 @@
+.container {
+    width: 100%;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    font-size: 1.8rem;
+}
+
+.header p {
+    font-family: 'Inter', sans-serif;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+}
+
+.uploadCard,
+.infoCard {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+}
+
+.uploadCard h3,
+.infoCard h3 {
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.dropZone {
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+    margin-bottom: 2rem;
+}
+
+.dropZone.dragging {
+    border-color: var(--color-primary);
+    background: rgba(0, 240, 255, 0.05);
+}
+
+.uploadIcon {
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+}
+
+.dropZone p {
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 1rem;
+}
+
+.browseBtn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.browseBtn:hover {
+    background: var(--color-primary);
+    color: #000;
+}
+
+.formGroup {
+    margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+    display: block;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0.5rem;
+}
+
+.input,
+.textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 8px;
+    padding: 0.8rem;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+}
+
+.input:focus,
+.textarea:focus {
+    border-color: var(--color-primary);
+}
+
+.deployBtn {
+    width: 100%;
+    background: var(--color-secondary);
+    color: #000;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+}
+
+.deployBtn:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+}
+
+.currentVersion {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-glass-border);
+}
+
+.fileIcon {
+    color: var(--color-primary);
+}
+
+.versionNumber {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.pubDate {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.statRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.hash {
+    font-family: 'monospace';
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.downloadBtn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+}
+
+.downloadBtn:hover {
+    background: rgba(0, 240, 255, 0.1);
+}
+
+.warningBox {
+    font-size: 0.8rem;
+    color: #888;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+.progressBar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progressFill {
+    height: 100%;
+    background: var(--color-primary);
+}
+
+.uploadingState {
+    width: 80%;
+    text-align: center;
+}
+
+@media (max-width: 1024px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

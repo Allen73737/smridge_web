@@ -1,0 +1,126 @@
+.container {
+    width: 100%;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    font-size: 1.8rem;
+}
+
+.header p {
+    font-family: 'Inter', sans-serif;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.cardHeader h3 {
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 5px currentColor;
+}
+
+.statusDot.good {
+    background: #00ff9d;
+    box-shadow: 0 0 5px #00ff9d;
+}
+
+.statusDot.warning {
+    background: #ff0055;
+    box-shadow: 0 0 5px #ff0055;
+}
+
+.metrics {
+    margin-bottom: 1.5rem;
+}
+
+.metricRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+}
+
+.metricLabel {
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.metricValue {
+    color: #fff;
+    font-weight: 500;
+    font-family: 'monospace';
+}
+
+.metricValue.alert {
+    color: #ff0055;
+    font-weight: bold;
+}
+
+.freshnessContainer {
+    margin-bottom: 1rem;
+}
+
+.freshnessLabel {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.5rem;
+}
+
+.progressBarBg {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progressBarFill {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.cardFooter {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 0.8rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

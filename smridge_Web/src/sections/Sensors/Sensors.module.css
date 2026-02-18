@@ -1,0 +1,146 @@
+.sensorSection {
+    padding: 8rem 5%;
+    background: radial-gradient(circle at 30% 20%, #0a1020 0%, #05050a 100%);
+    min-height: 100vh;
+    position: relative;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 6rem;
+}
+
+.header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.header p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    transition: border 0.3s ease;
+}
+
+.card:hover {
+    border-color: rgba(0, 240, 255, 0.5);
+}
+
+.iconWrapper {
+    display: inline-flex;
+    padding: 1.5rem;
+    background: rgba(0, 240, 255, 0.05);
+    border-radius: 50%;
+    color: var(--color-primary);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+}
+
+.card h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}
+
+.card p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+}
+
+.cardGlow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 100%, rgba(0, 240, 255, 0.1), transparent 60%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover .cardGlow {
+    opacity: 1;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.expandedCard {
+    background: #0a0a0f;
+    border: 1px solid var(--color-primary);
+    border-radius: 24px;
+    padding: 4rem;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0, 240, 255, 0.2);
+    text-align: center;
+}
+
+.closeButton {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+    border-radius: 50%;
+    color: var(--color-text);
+    transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+    background: var(--color-primary);
+    color: #000;
+}
+
+.expandedIcon {
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+    transform: scale(1.5);
+    display: inline-block;
+}
+
+.expandedDetails {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.8;
+}

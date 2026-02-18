@@ -1,0 +1,119 @@
+.container {
+    width: 100%;
+    max-width: 1000px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    font-size: 1.8rem;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-glass-border);
+}
+
+.filterIcon {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.filterSelect {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    cursor: pointer;
+}
+
+.filterSelect option {
+    background: #05050a;
+    color: #fff;
+}
+
+.logsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.logItem {
+    display: flex;
+    gap: 1.5rem;
+    background: rgba(10, 10, 15, 0.6);
+    border: 1px solid var(--color-glass-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 4px 12px 12px 4px;
+    padding: 1.2rem;
+    transition: transform 0.2s;
+}
+
+.logItem:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.logIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.logContent {
+    flex: 1;
+}
+
+.logHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+}
+
+.actionTitle {
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}
+
+.time {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.details {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.user {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+}
+
+.emptyState {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 3rem;
+    font-style: italic;
+}
