@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Thermometer, Droplets, Wind, Cpu, Brain, X } from 'lucide-react';
 import styles from './Sensors.module.css';
+import { TextReveal, Reveal } from '../../components/Effects/Reveal';
 
 const sensorsData = [
     {
@@ -41,16 +42,43 @@ const sensorsData = [
     }
 ];
 
-const Card = ({ sensor, onClick }) => {
+const Card = ({ sensor, index, onClick }) => {
     return (
         <motion.div
             className={styles.card}
             layoutId={`card-${sensor.id}`}
             onClick={() => onClick(sensor)}
-            whileHover={{ y: -10, boxShadow: "0 0 25px rgba(0, 240, 255, 0.3)" }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            initial={{ opacity: 0, y: 50, rotateX: 20, scale: 0.9 }}
+            whileInView={{ 
+                opacity: 1, 
+                y: 0, 
+                rotateX: 0,
+                scale: 1,
+                transition: {
+                    type: "spring",
+                    stiffness: 80,
+                    damping: 15,
+                    delay: index * 0.1
+                }
+            }}
+            viewport={{ once: false, margin: "-100px" }}
+            whileHover={{ 
+                y: -15, 
+                rotateY: 10,
+                rotateX: -5,
+                scale: 1.05,
+                boxShadow: "0 25px 50px rgba(0, 240, 255, 0.3)",
+                borderColor: "rgba(0, 240, 255, 0.8)"
+            }}
         >
-            <div className={styles.iconWrapper}>{sensor.icon}</div>
+            <div className={styles.iconWrapper}>
+                <motion.div
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                    {sensor.icon}
+                </motion.div>
+            </div>
             <h3>{sensor.title}</h3>
             <p>{sensor.description}</p>
             <div className={styles.cardGlow} />
@@ -64,13 +92,17 @@ const Sensors = () => {
     return (
         <section id="technology" className={styles.sensorSection}>
             <div className={styles.header}>
-                <h2 className="text-gradient">Core Technology</h2>
-                <p>Powered by advanced sensing and AI.</p>
+                <h2 className="text-gradient">
+                    <TextReveal text="Core Technology" centered={true} />
+                </h2>
+                <Reveal delay={0.4} centered={true}>
+                    <p className="section-subtext">Powered by advanced sensing and AI.</p>
+                </Reveal>
             </div>
 
             <div className={styles.grid}>
-                {sensorsData.map(sensor => (
-                    <Card key={sensor.id} sensor={sensor} onClick={setSelectedSensor} />
+                {sensorsData.map((sensor, i) => (
+                    <Card key={sensor.id} index={i} sensor={sensor} onClick={setSelectedSensor} />
                 ))}
             </div>
 

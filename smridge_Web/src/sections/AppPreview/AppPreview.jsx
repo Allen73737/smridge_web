@@ -1,13 +1,15 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Smartphone, Battery, Signal, Wifi, Bell, Thermometer } from 'lucide-react';
+import { Smartphone, Battery, Signal, Wifi, Bell, Thermometer, Menu, ChevronLeft, Settings } from 'lucide-react';
 import styles from './AppPreview.module.css';
+import { Reveal, TextReveal } from '../../components/Effects/Reveal';
 
 const AppScreen = () => {
     return (
         <div className={styles.phoneScreen}>
+            {/* Status Bar: Realistic Elements */}
             <div className={styles.statusBar}>
-                <div className={styles.time}>12:42</div>
+                <span className={styles.statusTime}>09:41</span>
                 <div className={styles.statusIcons}>
                     <Signal size={14} />
                     <Wifi size={14} />
@@ -15,60 +17,88 @@ const AppScreen = () => {
                 </div>
             </div>
 
+            {/* Header: Exact Screenshot Sync */}
             <div className={styles.appHeader}>
-                <div className={styles.avatar}></div>
-                <div className={styles.greeting}>
-                    <p>Hello, Allen</p>
-                    <h3>My Smridge</h3>
-                </div>
-                <Bell size={20} className={styles.notifIcon} />
-            </div>
-
-            <div className={styles.tempCard}>
-                <div className={styles.tempHeader}>
-                    <Thermometer size={18} />
-                    <span>Internal Temp</span>
-                </div>
-                <div className={styles.tempValue}>
-                    3.5<span>°C</span>
-                </div>
-                <div className={styles.tempGraph}>
-                    {/* Simple CSS bars for graph */}
-                    {[40, 60, 45, 70, 50, 65, 55].map((h, i) => (
-                        <motion.div
-                            key={i}
-                            className={styles.graphBar}
-                            style={{ height: `${h}%` }}
-                            animate={{ height: [`${h}%`, `${h + Math.random() * 20 - 10}%`, `${h}%`] }}
-                            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse", delay: i * 0.1 }}
-                        />
-                    ))}
-                </div>
-            </div>
-
-            <div className={styles.inventoryList}>
-                <h3>Freshness Alert</h3>
-                {[
-                    { name: "Avocados", days: 2, color: "#ffaa00" },
-                    { name: "Milk", days: 4, color: "#00ff9d" },
-                    { name: "Salmon", days: 1, color: "#ff0055" }
-                ].map((item, i) => (
-                    <div key={i} className={styles.inventoryItem}>
-                        <div className={styles.itemDot} style={{ background: item.color }} />
-                        <div className={styles.itemInfo}>
-                            <span className={styles.itemName}>{item.name}</span>
-                            <span className={styles.itemDays} style={{ color: item.color }}>{item.days} days left</span>
-                        </div>
+                <Menu size={18} className={styles.headerIcon} />
+                <h3 className={styles.logoTitle}>SMRIDGE</h3>
+                <div className={styles.snowflakeIcon}>
+                    <div className={styles.snowflakeCircle}>
+                        <div className={styles.innerSnowflake} />
                     </div>
-                ))}
+                </div>
             </div>
 
-            <div className={styles.bottomNav}>
-                <div className={styles.navIndicator} />
+            {/* Status Card: Glassmorphic Dark */}
+            <div className={styles.statusCard}>
+                <div className={styles.statusRow}>
+                    <span>Temperature</span>
+                    <span className={styles.cyanText}>2.0°C</span>
+                </div>
+                <div className={styles.statusRow}>
+                    <span>Humidity</span>
+                    <span className={styles.cyanText}>67%</span>
+                </div>
+                <div className={styles.statusRow}>
+                    <span>Freshness</span>
+                    <div className={styles.freshDots}>
+                        <div className={`${styles.dot} ${styles.dotActive}`} />
+                        <div className={styles.dot} />
+                        <div className={styles.dot} />
+                    </div>
+                </div>
+                <div className={styles.statusRow}>
+                    <span>Door</span>
+                    <div className={styles.doorStatus}>
+                        <span className={styles.greenText}>SECURED</span>
+                        <ChevronLeft size={12} className={styles.chevron} style={{ transform: 'rotate(-90deg)', marginLeft: '4px' }} />
+                    </div>
+                </div>
             </div>
+
+            {/* Main Panel: Large Fridge Door UI */}
+            <div className={styles.mainDoorPanel}>
+                <div className={styles.panelOverlay}>
+                    <div className={styles.panelGlow} />
+                    <div className={styles.panelTitle}>SMRIDGE AI</div>
+                </div>
+                {/* Smridge AI FAB */}
+                <motion.div 
+                    className={styles.aiFab}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                >
+                    <Smartphone size={24} color="#000" />
+                    <div className={styles.fabPulse} />
+                </motion.div>
+            </div>
+
+            {/* Bottom Navigation Dock */}
+            <div className={styles.bottomDock}>
+                <div className={`${styles.dockItem} ${styles.dockActive}`}>
+                    <div className={styles.homeIcon}>
+                        <div className={styles.homeRoof} />
+                        <div className={styles.homeBase} />
+                    </div>
+                    <div className={styles.activeGlow} />
+                </div>
+                <div className={styles.dockItem}><Battery size={18} /></div>
+                <div className={styles.dockItem}><Smartphone size={18} /></div>
+                <div className={styles.dockItem}><div className={styles.plusCircle}>+</div></div>
+                <div className={styles.dockItem}><Bell size={18} /></div>
+                <div className={styles.dockItem}><Settings size={18} /></div>
+            </div>
+            
+            {/* iOS Style Navigation Pill */}
+            <div className={styles.navPillContainer}>
+                <div className={styles.navPill} />
+            </div>
+            
+            <div className={styles.screenScanline} />
         </div>
     );
 };
+
+
 
 const AppPreview = () => {
     const ref = useRef(null);
@@ -83,18 +113,26 @@ const AppPreview = () => {
                     animate={isInView ? { opacity: 1, x: 0 } : {}}
                     transition={{ duration: 0.8 }}
                 >
-                    <h2 className="text-gradient">Total Control.</h2>
-                    <h3 className={styles.subHeader}>In your pocket.</h3>
-                    <p>
-                        Monitor temperature, manage inventory, and receive freshness alerts instantly.
-                        The Smridge app puts the brain of your refrigerator in the palm of your hand.
-                    </p>
-                    <ul className={styles.featureList}>
-                        <li>Real-time Alerts</li>
-                        <li>Remote Temperature Control</li>
-                        <li>Inventory Tracking</li>
-                        <li>Energy Usage Stats</li>
-                    </ul>
+                    <h2 className="text-gradient">
+                        <TextReveal text="Total Ecosystem Control" />
+                    </h2>
+                    <Reveal delay={0.4}>
+                        <h3 className={styles.subHeader}>The Hub of Smridge Intelligence.</h3>
+                    </Reveal>
+                    <Reveal delay={0.6}>
+                        <p className="section-subtext">
+                            Monitor freshness curves, adjust global thresholds, and manage your inventory with AI-driven precision.
+                            The Smridge app is the nervous system of your refrigerator, bridging the gap between vision and preservation.
+                        </p>
+                    </Reveal>
+                    <Reveal delay={0.8}>
+                        <ul className={styles.featureList}>
+                            <li>Real-time Freshness Monitoring</li>
+                            <li>Global Environment Thresholds</li>
+                            <li>Intelligent Inventory Management</li>
+                            <li>Ecosystem Health Analytics</li>
+                        </ul>
+                    </Reveal>
                 </motion.div>
 
                 <motion.div

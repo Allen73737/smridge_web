@@ -1,89 +1,77 @@
 .appSection {
+    padding: 10rem 2rem;
     min-height: 100vh;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: radial-gradient(ellipse at bottom right, #0a1020 0%, #05050a 100%);
-    padding: 5rem 5%;
+    background: var(--color-bg);
+    position: relative;
     overflow: hidden;
 }
 
 .contentContainer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 1200px;
-    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 4rem;
-}
-
-.textContent {
-    flex: 1;
+    align-items: center;
 }
 
 .textContent h2 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 4rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .subHeader {
-    font-family: 'Inter', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 300;
-    color: #fff;
+    font-size: 1.5rem;
+    color: var(--color-primary);
     margin-bottom: 2rem;
+    font-family: 'Roboto', sans-serif;
 }
 
 .textContent p {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.7);
-    line-height: 1.6;
-    margin-bottom: 2rem;
-    max-width: 500px;
+    margin-bottom: 3rem;
+    text-align: left;
 }
 
 .featureList {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    list-style: none;
+    padding: 0;
 }
 
 .featureList li {
-    font-family: 'Orbitron', sans-serif;
-    color: var(--color-primary);
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 1.2rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 }
 
 .featureList li::before {
     content: '';
-    width: 6px;
-    height: 6px;
-    background: var(--color-secondary);
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary);
     border-radius: 50%;
-    box-shadow: 0 0 5px var(--color-secondary);
+    box-shadow: 0 0 10px var(--color-primary);
 }
 
+/* Phone Mockup Styling */
 .phoneWrapper {
-    flex: 1;
+    position: relative;
     display: flex;
     justify-content: center;
-    position: relative;
 }
 
 .phoneFrame {
-    width: 320px;
-    height: 650px;
-    background: #000;
-    border-radius: 40px;
-    border: 4px solid #333;
-    box-shadow: 0 0 0 2px #111, 0 20px 50px rgba(0, 0, 0, 0.5);
+    width: 380px;
+    height: 780px;
+    background: #111;
+    border: 12px solid #222;
+    border-radius: 60px;
     position: relative;
+    box-shadow: 0 50px 100px rgba(0,0,0,0.8), 0 0 30px rgba(0, 240, 255, 0.1);
     overflow: hidden;
-    z-index: 2;
 }
 
 .notch {
@@ -91,176 +79,300 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 120px;
-    height: 30px;
-    background: #000;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
-    z-index: 3;
+    width: 180px;
+    height: 35px;
+    background: #222;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    z-index: 10;
 }
 
-.phoneGlow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 120%;
-    height: 80%;
-    background: radial-gradient(circle, rgba(0, 240, 255, 0.2) 0%, transparent 70%);
-    filter: blur(40px);
-    z-index: 1;
-}
-
-/* Screen UI */
 .phoneScreen {
     width: 100%;
     height: 100%;
-    background: #0f0f15;
-    padding: 3rem 1.5rem 2rem 1.5rem;
+    background: linear-gradient(180deg, #0a1122 0%, #15203b 100%);
     display: flex;
     flex-direction: column;
-    color: white;
-    font-family: 'Inter', sans-serif;
+    padding: 30px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.phoneScreen::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
+    pointer-events: none;
+    z-index: 20;
+}
+
+.screenScanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.1;
 }
 
 .statusBar {
-    position: absolute;
-    top: 0.5rem;
-    left: 0;
-    width: 100%;
-    padding: 0 1.5rem;
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
+    align-items: center;
+    padding: 10px 20px;
+    height: 44px;
+    z-index: 100;
+    position: relative;
+}
+
+.statusTime {
+    font-size: 0.9rem;
+    font-weight: 700;
     color: #fff;
-    z-index: 4;
+    letter-spacing: -0.02em;
 }
 
 .statusIcons {
     display: flex;
-    gap: 0.3rem;
+    gap: 8px;
+    color: #fff;
+    opacity: 0.9;
+}
+
+.navPillContainer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 8px;
+    z-index: 100;
+}
+
+.navPill {
+    width: 120px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 100px;
 }
 
 .appHeader {
     display: flex;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    background: #333;
-    border-radius: 50%;
-    margin-right: 1rem;
-}
-
-.greeting p {
-    font-size: 0.8rem;
-    color: #888;
-}
-
-.greeting h3 {
-    font-size: 1.2rem;
-}
-
-.notifIcon {
-    margin-left: auto;
-}
-
-.tempCard {
-    background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(0, 240, 255, 0.05));
-    border: 1px solid rgba(0, 240, 255, 0.2);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.tempHeader {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    color: var(--color-primary);
-}
-
-.tempValue {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-}
-
-.tempGraph {
-    display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    height: 50px;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 0 10px;
 }
 
-.graphBar {
-    width: 6px;
-    background: var(--color-primary);
-    border-radius: 3px;
-    opacity: 0.7;
+.logoTitle {
+    font-size: 1.2rem;
+    font-weight: 900;
+    letter-spacing: 0.4rem;
+    color: #fff;
+    margin: 0;
 }
 
-.inventoryList h3 {
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1rem;
-    margin-bottom: 1rem;
-    color: #888;
-}
-
-.inventoryItem {
+.snowflakeCircle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--color-primary);
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 1rem;
-    border-radius: 12px;
-    margin-bottom: 0.8rem;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
 
-.itemDot {
+.innerSnowflake {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
-    margin-right: 1rem;
-    box-shadow: 0 0 5px currentColor;
+    background: var(--color-primary);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 }
 
-.itemInfo {
+.statusCard {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.statusRow {
     display: flex;
     justify-content: space-between;
-    width: 100%;
+    align-items: center;
     font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
 }
 
-.bottomNav {
-    margin-top: auto;
+.cyanText {
+    color: #00f0ff;
+    font-weight: 700;
+}
+
+.greenText {
+    color: #00ff9d;
+    font-weight: 700;
+    letter-spacing: 0.05rem;
+}
+
+.freshDots {
     display: flex;
+    gap: 4px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dotActive {
+    background: #00ff9d;
+    box-shadow: 0 0 8px #00ff9d;
+}
+
+.mainDoorPanel {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.panelOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
     justify-content: center;
 }
 
-.navIndicator {
-    width: 100px;
+.panelTitle {
+    font-family: 'Anta', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    opacity: 0.05;
+    letter-spacing: 0.8rem;
+    color: #fff;
+    pointer-events: none;
+}
+
+.aiFab {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4);
+    cursor: pointer;
+    z-index: 5;
+}
+
+.bottomDock {
+    background: rgba(10, 10, 15, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dockItem {
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.dockActive {
+    color: var(--color-primary);
+}
+
+.activeGlow {
+    position: absolute;
+    bottom: -10px;
+    width: 4px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--color-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--color-primary);
+}
+
+.plusCircle {
+    width: 40px;
+    height: 40px;
+    background: var(--color-primary);
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+.navPillContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+
+.navPill {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.4);
     border-radius: 2px;
 }
 
-@media (max-width: 1024px) {
+.homeIcon {
+    width: 18px;
+    height: 18px;
+    position: relative;
+}
+
+.homeRoof {
+    width: 100%;
+    height: 50%;
+    border: 2px solid currentColor;
+    border-bottom: none;
+    transform: skewX(-45deg); /* Simple roof shape */
+}
+
+@media (max-width: 1100px) {
     .contentContainer {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .textContent {
-        margin-bottom: 4rem;
-    }
-
-    .featureList {
-        justify-content: center;
+        grid-template-columns: 1fr;
+        padding: 4rem 1rem;
     }
 }

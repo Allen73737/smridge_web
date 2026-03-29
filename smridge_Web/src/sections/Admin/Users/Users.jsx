@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Eye, Trash2, Shield, MoreVertical } from 'lucide-react';
+import { Search, Eye, Trash2, Shield, ShieldOff, MoreVertical, Crown } from 'lucide-react';
 import styles from './Users.module.css';
 
 import api from '../../../services/api';
@@ -10,38 +10,47 @@ const UsersManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
 
+    const fetchUsers = async () => {
+        try {
+            const { data } = await api.get('/users');
+            setUsers(data);
+        } catch (error) {
+            console.error("Failed to fetch users", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const { data } = await api.get('/users');
-                setUsers(data);
-            } catch (error) {
-                console.error("Failed to fetch users", error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchUsers();
     }, []);
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure?')) {
+    const handleDelete = async (user) => {
+        if (user.role === 'admin') return;
+        if (window.confirm(`Delete user ${user.name}? This action cannot be undone.`)) {
             try {
-                await api.delete(`/users/${id}`);
-                setUsers(users.filter(u => u._id !== id));
+                await api.delete(`/users/${user._id}`);
+                setUsers(users.filter(u => u._id !== user._id));
             } catch (error) {
                 alert('Failed to delete user');
             }
         }
     };
 
-    const handleBlock = async (id) => {
+    const handleBlock = async (user) => {
+        if (user.role === 'admin') return;
         try {
-            const { data } = await api.put(`/users/block/${id}`);
-            setUsers(users.map(u => u._id === id ? data : u));
+            const { data } = await api.put(`/users/block/${user._id}`);
+            setUsers(users.map(u => u._id === user._id ? data : u));
         } catch (error) {
             alert('Failed to update user status');
         }
+    };
+
+    const isOnline = (lastActive) => {
+        if (!lastActive) return false;
+        const fiveMinutes = 5 * 60 * 1000;
+        return (new Date() - new Date(lastActive)) < fiveMinutes;
     };
 
     const filteredUsers = users.filter(user =>
@@ -68,10 +77,9 @@ const UsersManagement = () => {
                 <table className={styles.table}>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
+                            <th>User</th>
                             <th>Role</th>
-                            <th>Status</th>
+                            <th>Status / Activity</th>
                             <th>Last Active</th>
                             <th>Actions</th>
                         </tr>
@@ -85,33 +93,62 @@ const UsersManagement = () => {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
                                     transition={{ delay: index * 0.05 }}
-                                    className={styles.row}
+                                    className={`${styles.row} ${user.role === 'admin' ? styles.adminRow : ''}`}
                                 >
                                     <td>
                                         <div className={styles.userInfo}>
-                                            <div className={styles.avatar}>{user.name.charAt(0)}</div>
-                                            {user.name}
+                                            <div className={`${styles.avatar} ${user.role === 'admin' ? styles.adminAvatar : ''}`}>
+                                                {user.role === 'admin' ? <Crown size={12} /> : user.name.charAt(0)}
+                                            </div>
+                                            <div className={styles.userMeta}>
+                                                <span className={styles.userName}>{user.name}</span>
+                                                <span className={styles.userEmail}>{user.email}</span>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td>{user.email}</td>
                                     <td>
                                         <span className={`${styles.roleBadge} ${user.role === 'admin' ? styles.admin : ''}`}>
                                             {user.role}
                                         </span>
                                     </td>
                                     <td>
-                                        <span className={`${styles.statusBadge} ${user.isBlocked ? styles.blocked : styles.active}`}>
-                                            {user.isBlocked ? 'Blocked' : 'Active'}
-                                        </span>
+                                        <div className={styles.statusGroup}>
+                                            <span className={`${styles.statusBadge} ${user.isBlocked ? styles.blocked : styles.active}`}>
+                                                {user.isBlocked ? 'Blocked' : 'Active'}
+                                            </span>
+                                            <span className={`${styles.indicator} ${isOnline(user.lastActive) ? styles.online : styles.offline}`}>
+                                                {isOnline(user.lastActive) ? 'Online' : 'Offline'}
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td>{new Date(user.lastActive).toLocaleDateString()}</td>
+                                    <td>
+                                        <div className={styles.timeInfo}>
+                                            <span>{new Date(user.lastActive).toLocaleDateString()}</span>
+                                            <small>{new Date(user.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                                        </div>
+                                    </td>
                                     <td>
                                         <div className={styles.actions}>
-                                            <button className={styles.actionBtn}><Eye size={16} /></button>
-                                            <button className={styles.actionBtn} onClick={() => handleBlock(user._id)}>
-                                                <Shield size={16} color={user.isBlocked ? '#ff0055' : 'inherit'} />
+                                            <button 
+                                                className={styles.actionBtn} 
+                                                title="View Details"
+                                            >
+                                                <Eye size={16} />
                                             </button>
-                                            <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(user._id)}>
+                                            <button 
+                                                className={`${styles.actionBtn} ${user.role === 'admin' ? styles.disabled : ''}`} 
+                                                onClick={() => handleBlock(user)}
+                                                disabled={user.role === 'admin'}
+                                                title={user.isBlocked ? "Unblock User" : "Block User"}
+                                            >
+                                                {user.isBlocked ? <ShieldOff size={16} color="#ff0055" /> : <Shield size={16} />}
+                                            </button>
+                                            <button 
+                                                className={`${styles.actionBtn} ${styles.delete} ${user.role === 'admin' ? styles.disabled : ''}`} 
+                                                onClick={() => handleDelete(user)}
+                                                disabled={user.role === 'admin'}
+                                                title="Delete User"
+                                            >
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>

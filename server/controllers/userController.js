@@ -5,7 +5,7 @@ const ActivityLog = require('../models/ActivityLog');
 // @route   GET /api/users
 // @access  Private/Admin
 const getUsers = async (req, res) => {
-    const users = await User.find({}).select('-password');
+    const users = await User.find({ role: { $ne: 'admin' } }).select('-password');
     res.json(users);
 };
 
@@ -18,12 +18,15 @@ const deleteUser = async (req, res) => {
     if (user) {
         await user.remove();
         // Log activity
-        await ActivityLog.create({
+        const log = await ActivityLog.create({
             userId: req.user._id,
             action: 'DELETE_USER',
             role: 'admin',
             details: `Deleted user ${user.email}`,
         });
+
+        const io = req.app.get('socketio');
+        if (io) io.emit('logAdded', log);
         res.json({ message: 'User removed' });
     } else {
         res.status(404);
@@ -41,12 +44,15 @@ const blockUser = async (req, res) => {
         user.isBlocked = !user.isBlocked;
         await user.save();
 
-        await ActivityLog.create({
+        const log = await ActivityLog.create({
             userId: req.user._id,
             action: user.isBlocked ? 'BLOCK_USER' : 'UNBLOCK_USER',
             role: 'admin',
             details: `${user.isBlocked ? 'Blocked' : 'Unblocked'} user ${user.email}`,
         });
+
+        const io = req.app.get('socketio');
+        if (io) io.emit('logAdded', log);
 
         res.json(user);
     } else {
@@ -65,12 +71,15 @@ const updateUserRole = async (req, res) => {
         user.role = req.body.role || user.role;
         await user.save();
 
-        await ActivityLog.create({
+        const log = await ActivityLog.create({
             userId: req.user._id,
             action: 'UPDATE_ROLE',
             role: 'admin',
             details: `Updated role for ${user.email} to ${user.role}`,
         });
+
+        const io = req.app.get('socketio');
+        if (io) io.emit('logAdded', log);
 
         res.json(user);
     } else {

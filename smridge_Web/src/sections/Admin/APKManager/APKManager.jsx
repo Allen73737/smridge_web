@@ -1,30 +1,37 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Upload, FileCode, CheckCircle, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, FileCode, CheckCircle, Download, Smartphone, Apple, Star, Trash2 } from 'lucide-react';
 import styles from './APKManager.module.css';
-
 import api from '../../../services/api';
+import { useToast } from '../../../context/ToastContext';
 
-const APKManager = () => {
+const BuildManager = () => {
+    const { showToast } = useToast();
     const [isDragging, setIsDragging] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
     const [version, setVersion] = useState("2.1.0");
     const [notes, setNotes] = useState("");
-    const [latestAPK, setLatestAPK] = useState(null);
+    const [platform, setPlatform] = useState("android");
+    const [isLink, setIsLink] = useState(false);
+    const [externalLink, setExternalLink] = useState("");
     const [fileToUpload, setFileToUpload] = useState(null);
+    const [history, setHistory] = useState([]);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(null); // ID of build to delete
 
-    React.useEffect(() => {
-        const fetchAPK = async () => {
-            try {
-                const { data } = await api.get('/apk/latest');
-                setLatestAPK(data);
-            } catch (error) {
-                console.log("No APK found");
-            }
-        };
-        fetchAPK();
-    }, []);
+    const fetchLatest = async (p) => {
+        try {
+            const { data } = await api.get(`/apk/history/${p}`);
+            setHistory(data);
+        } catch (err) {
+            console.error("Fetch latest failed:", err);
+            setHistory([]);
+        }
+    };
+
+    useEffect(() => {
+        fetchLatest(platform);
+    }, [platform]);
 
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -44,7 +51,7 @@ const APKManager = () => {
     };
 
     const handleBrowse = () => {
-        document.getElementById('apkInput').click();
+        document.getElementById('buildInput').click();
     };
 
     const handleFileChange = (e) => {
@@ -54,13 +61,17 @@ const APKManager = () => {
     };
 
     const startUpload = async () => {
-        if (!fileToUpload) return alert("Please select a file");
+        if (!fileToUpload && !isLink) return showToast("Please select a file or provide a link", "error");
+        if (isLink && !externalLink) return showToast("Please provide a valid download link", "error");
 
         setIsUploading(true);
         const formData = new FormData();
-        formData.append('apk', fileToUpload);
+        if (fileToUpload) formData.append('file', fileToUpload);
         formData.append('version', version);
         formData.append('releaseNotes', notes);
+        formData.append('platform', platform);
+        formData.append('isLink', isLink);
+        formData.append('externalLink', externalLink);
 
         try {
             await api.post('/apk/upload', formData, {
@@ -70,25 +81,62 @@ const APKManager = () => {
                     setUploadProgress(percentCompleted);
                 }
             });
-            alert('Upload Successful!');
+            showToast(`${platform.toUpperCase()} Build Deployed Successfully!`, "success");
             setFileToUpload(null);
+            setExternalLink("");
             setUploadProgress(0);
-
-            // Refresh
-            const { data } = await api.get('/apk/latest');
-            setLatestAPK(data);
-        } catch (error) {
-            alert('Upload Failed');
+            fetchLatest(platform);
+        } catch (err) {
+            console.error("Upload failed:", err);
+            showToast('Deployment Failed. Please check server logs.', "error");
         } finally {
             setIsUploading(false);
+        }
+    };
+
+    const handleSetLatest = async (id) => {
+        try {
+            await api.put(`/apk/${id}/latest`);
+            showToast("Latest version updated successfully", "success");
+            fetchLatest(platform);
+        } catch (err) {
+            console.error("Set latest failed:", err);
+            showToast("Failed to update latest version", "error");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await api.delete(`/apk/${id}`);
+            showToast("Build removed from ecosystem", "info");
+            setShowDeleteConfirm(null);
+            fetchLatest(platform);
+        } catch (err) {
+            console.error("Delete failed:", err);
+            showToast("Failed to delete build", "error");
         }
     };
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1>APK Management</h1>
-                <p>Deploy new firmware versions to all connected units.</p>
+                <h1>Ecosystem Build Manager</h1>
+                <p>Deploy cross-platform updates across the Smridge network.</p>
+            </div>
+
+            <div className={styles.platformTabs}>
+                <button 
+                    className={`${styles.tab} ${platform === 'android' ? styles.activeTab : ''}`}
+                    onClick={() => setPlatform('android')}
+                >
+                    <Smartphone size={18} /> Android (.apk)
+                </button>
+                <button 
+                    className={`${styles.tab} ${platform === 'ios' ? styles.activeTab : ''}`}
+                    onClick={() => setPlatform('ios')}
+                >
+                    <Apple size={18} /> iOS (.ipa)
+                </button>
             </div>
 
             <div className={styles.grid}>
@@ -97,41 +145,67 @@ const APKManager = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
-                    <h3>Upload New Build</h3>
-
-                    <div
-                        className={`${styles.dropZone} ${isDragging ? styles.dragging : ''}`}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                    >
-                        {isUploading ? (
-                            <div className={styles.uploadingState}>
-                                <div className={styles.progressBar}>
-                                    <motion.div
-                                        className={styles.progressFill}
-                                        style={{ width: `${uploadProgress}%` }}
-                                    />
-                                </div>
-                                <span>Uploading... {uploadProgress}%</span>
-                            </div>
-                        ) : (
-                            <>
-                                <Upload size={48} className={styles.uploadIcon} />
-                                <p>{fileToUpload ? fileToUpload.name : 'Drag & Drop APK file here'}</p>
-                                <input
-                                    type="file"
-                                    id="apkInput"
-                                    accept=".apk"
-                                    style={{ display: 'none' }}
-                                    onChange={handleFileChange}
-                                />
-                                <button className={styles.browseBtn} onClick={handleBrowse}>
-                                    {fileToUpload ? 'Change File' : 'Browse Files'}
-                                </button>
-                            </>
-                        )}
+                    <div className={styles.uploadTypeToggle}>
+                        <button 
+                            className={`${styles.typeBtn} ${!isLink ? styles.activeType : ''}`}
+                            onClick={() => setIsLink(false)}
+                        >
+                            File Upload
+                        </button>
+                        <button 
+                            className={`${styles.typeBtn} ${isLink ? styles.activeType : ''}`}
+                            onClick={() => setIsLink(true)}
+                        >
+                            External Link
+                        </button>
                     </div>
+
+                    {!isLink ? (
+                        <div
+                            className={`${styles.dropZone} ${isDragging ? styles.dragging : ''}`}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                        >
+                            {isUploading ? (
+                                <div className={styles.uploadingState}>
+                                    <div className={styles.progressBar}>
+                                        <motion.div
+                                            className={styles.progressFill}
+                                            style={{ width: `${uploadProgress}%` }}
+                                        />
+                                    </div>
+                                    <span>Deploying... {uploadProgress}%</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <Upload size={48} className={styles.uploadIcon} />
+                                    <p>{fileToUpload ? fileToUpload.name : `Drag & Drop ${platform.toUpperCase()} file here`}</p>
+                                    <input
+                                        type="file"
+                                        id="buildInput"
+                                        accept={platform === 'android' ? ".apk" : ".ipa"}
+                                        style={{ display: 'none' }}
+                                        onChange={handleFileChange}
+                                    />
+                                    <button className={styles.browseBtn} onClick={handleBrowse}>
+                                        {fileToUpload ? 'Change File' : 'Browse Files'}
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    ) : (
+                        <div className={styles.linkInputContainer}>
+                            <label>Download Link (iOS Only/Recommended)</label>
+                            <input
+                                type="url"
+                                placeholder="https://testflight.apple.com/join/..."
+                                value={externalLink}
+                                onChange={(e) => setExternalLink(e.target.value)}
+                                className={styles.input}
+                            />
+                        </div>
+                    )}
 
                     <div className={styles.formGroup}>
                         <label>Version Tag</label>
@@ -154,7 +228,7 @@ const APKManager = () => {
                     </div>
 
                     <button className={styles.deployBtn} onClick={startUpload} disabled={isUploading}>
-                        <CheckCircle size={18} /> Deploy to Production
+                        <CheckCircle size={18} /> Deploy to {platform.toUpperCase()} Production
                     </button>
                 </motion.div>
 
@@ -164,42 +238,97 @@ const APKManager = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
                 >
-                    <h3>Current Active Build</h3>
-
-                    <div className={styles.currentVersion}>
-                        <FileCode size={40} className={styles.fileIcon} />
-                        <div>
-                            <div className={styles.versionNumber}>{latestAPK ? latestAPK.version : 'N/A'}</div>
-                            <div className={styles.pubDate}>Published: {latestAPK ? new Date(latestAPK.uploadedAt).toLocaleDateString() : '-'}</div>
-                        </div>
+                    <div className={styles.historyHeader}>
+                        <h3>Version History</h3>
+                        <div className={styles.countBadge}>{history.length} Builds</div>
                     </div>
 
-                    <div className={styles.statRow}>
-                        <span>Size</span>
-                        <span>{latestAPK ? latestAPK.fileSize : '-'}</span>
+                    <div className={styles.historyList}>
+                        {history.map((build) => (
+                            <div key={build._id} className={`${styles.historyItem} ${build.isLatest ? styles.latest : ''}`}>
+                                <div className={styles.historyMeta}>
+                                    <div className={styles.versionCol}>
+                                        <span className={styles.vNum}>{build.version}</span>
+                                        {build.isLatest && <span className={styles.latestTag}>LATEST</span>}
+                                    </div>
+                                    <span className={styles.vDate}>{new Date(build.uploadedAt).toLocaleDateString()}</span>
+                                </div>
+                                <div className={styles.historyActions}>
+                                    {!build.isLatest && (
+                                        <button 
+                                            onClick={() => handleSetLatest(build._id)}
+                                            className={styles.miniBtn}
+                                            title="Mark as Latest"
+                                        >
+                                            <Star size={14} />
+                                        </button>
+                                    )}
+                                    <button 
+                                        onClick={() => window.open(build.isLink ? (build.externalLink || build.fileUrl) : (build.fileUrl && (build.fileUrl.startsWith('http') ? build.fileUrl : `${api.defaults.baseURL.replace('/api', '')}${build.fileUrl}`)), '_blank')}
+                                        className={styles.miniBtn}
+                                        title="Download/Open"
+                                    >
+                                        <Download size={14} />
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowDeleteConfirm(build._id)} 
+                                        className={`${styles.miniBtn} ${styles.deleteBtn}`}
+                                        title="Delete Build"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                        {history.length === 0 && <div className={styles.emptyHistory}>No builds deployed yet.</div>}
                     </div>
-                    <div className={styles.statRow}>
-                        <span>Downloads</span>
-                        <span>-</span>
-                    </div>
-                    <div className={styles.statRow}>
-                        <span>Notes</span>
-                        <span className={styles.hash} style={{ maxWidth: '150px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                            {latestAPK?.releaseNotes || '-'}
-                        </span>
-                    </div>
-
-                    <button className={styles.downloadBtn}>
-                        <Download size={18} /> Download Current APK
-                    </button>
 
                     <div className={styles.warningBox}>
-                        <strong>Note:</strong> Rollbacks must be performed manually via CLI access if the new build fails integrity checks.
+                        <strong>Live Ecosystem:</strong> Updates are instantly visible in the 'Sync the Ecosystem' section of the public website.
                     </div>
                 </motion.div>
             </div>
+
+            {/* Premium Delete Confirmation Snackbar */}
+            <AnimatePresence>
+                {showDeleteConfirm && (
+                    <div className={styles.snackbarOverlay}>
+                        <motion.div 
+                            className={styles.deleteSnackbar}
+                            initial={{ y: 100, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 100, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        >
+                            <div className={styles.snackbarContent}>
+                                <div className={styles.snackbarIcon}>
+                                    <Trash2 size={24} />
+                                </div>
+                                <div className={styles.snackbarText}>
+                                    <h4>Delete Version {history.find(b => b._id === showDeleteConfirm)?.version}?</h4>
+                                    <p>This action is permanent and cannot be undone.</p>
+                                </div>
+                            </div>
+                            <div className={styles.snackbarActions}>
+                                <button 
+                                    className={styles.cancelBtn} 
+                                    onClick={() => setShowDeleteConfirm(null)}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    className={styles.confirmDeleteBtn}
+                                    onClick={() => handleDelete(showDeleteConfirm)}
+                                >
+                                    Confirm Permanent Delete
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
-export default APKManager;
+export default BuildManager;

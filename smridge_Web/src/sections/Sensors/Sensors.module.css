@@ -11,16 +11,27 @@
 }
 
 .header h2 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 3rem;
+    font-family: 'Anta', sans-serif;
     margin-bottom: 1rem;
     text-transform: uppercase;
+    font-size: clamp(2rem, 10vw, 4rem);
 }
 
 .header p {
     color: rgba(255, 255, 255, 0.7);
-    font-size: 1.2rem;
-    font-family: 'Inter', sans-serif;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-family: 'Anta', sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .sensorSection {
+        padding: 4rem 1.5rem;
+    }
+    .header {
+        margin-bottom: 3rem;
+    }
 }
 
 .grid {
@@ -29,6 +40,27 @@
     gap: 3rem;
     max-width: 1400px;
     margin: 0 auto;
+    perspective: 1000px;
+}
+
+@media (min-width: 1200px) {
+    .grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    
+    .card:nth-child(1),
+    .card:nth-child(2),
+    .card:nth-child(3) {
+        grid-column: span 2;
+    }
+
+    .card:nth-child(4) {
+        grid-column: 2 / span 2;
+    }
+
+    .card:nth-child(5) {
+        grid-column: 4 / span 2;
+    }
 }
 
 .card {
@@ -59,14 +91,14 @@
 }
 
 .card h3 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.5rem;
+    font-family: 'Anta', sans-serif;
+    font-size: 2.5rem; /* Changed from 1.5rem to 2.5rem */
     margin-bottom: 1rem;
     color: var(--color-text);
 }
 
 .card p {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 1rem;
     color: rgba(255, 255, 255, 0.6);
     line-height: 1.6;
@@ -143,4 +175,5 @@
     font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.8);
     line-height: 1.8;
+    font-family: 'Roboto', sans-serif;
 }

@@ -7,92 +7,111 @@
 }
 
 .header h1 {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Anta', sans-serif;
     color: #fff;
     font-size: 1.8rem;
 }
 
 .header p {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     color: rgba(255, 255, 255, 0.6);
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 2rem;
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
+    background: rgba(10, 10, 15, 0.6);
+    backdrop-filter: blur(20px);
     border: 1px solid var(--color-glass-border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    transition: all 0.3s;
+    border-radius: 24px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 400px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.cardHeader {
+.card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 240, 255, 0.1);
+}
+
+.visualSection {
+    background: #000;
+    position: relative;
+}
+
+.infoSection {
+    padding: 1.5rem;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
 }
 
 .cardHeader h3 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Anta', sans-serif;
     color: #fff;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.headerBadges {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.unitId {
+    font-size: 0.7rem;
+    color: var(--color-primary);
+    background: rgba(0, 240, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 1px;
 }
 
 .statusDot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    box-shadow: 0 0 5px currentColor;
 }
 
-.statusDot.good {
-    background: #00ff9d;
-    box-shadow: 0 0 5px #00ff9d;
-}
-
-.statusDot.warning {
-    background: #ff0055;
-    box-shadow: 0 0 5px #ff0055;
-}
+.statusDot.good { background: #00ff9d; box-shadow: 0 0 10px #00ff9d; }
+.statusDot.warning { background: #ff0055; box-shadow: 0 0 10px #ff0055; }
 
 .metrics {
-    margin-bottom: 1.5rem;
+    margin: 1.5rem 0;
 }
 
 .metricRow {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.8rem;
-    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
 }
 
 .metricLabel {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.5);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
 }
 
 .metricValue {
     color: #fff;
+    font-family: 'Roboto', sans-serif;
     font-weight: 500;
-    font-family: 'monospace';
 }
 
-.metricValue.alert {
-    color: #ff0055;
-    font-weight: bold;
-}
+.metricValue.alert { color: #ff0055; }
 
 .freshnessContainer {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .freshnessLabel {
@@ -100,27 +119,91 @@
     justify-content: space-between;
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
 }
 
 .progressBarBg {
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
     overflow: hidden;
 }
 
 .progressBarFill {
     height: 100%;
-    border-radius: 3px;
+    border-radius: 4px;
+}
+
+.flexItem {
+    display: inline-block;
 }
 
 .cardFooter {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 0.8rem;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 1rem;
+}
+
+.loading, .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 0;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+}
+
+.spinner {
+    animation: spin 2s linear infinite;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+}
+
+.emptyState.titleInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.statusBadge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.online {
+    color: #00ff9d;
+    background: rgba(0, 255, 157, 0.1);
+}
+
+.offline {
+    color: #888;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.emptyState h3 {
+    color: #fff;
+    margin: 1rem 0 0.5rem;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1024px) {
+    .card {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    .visualSection {
+        height: 250px;
+    }
 }

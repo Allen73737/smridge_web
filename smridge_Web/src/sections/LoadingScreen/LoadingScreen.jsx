@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './LoadingScreen.module.css';
 
+import logo from '../../assets/smridge_logo.png';
+
 const LoadingScreen = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
 
@@ -10,12 +12,12 @@ const LoadingScreen = ({ onComplete }) => {
             setProgress((prev) => {
                 if (prev >= 100) {
                     clearInterval(timer);
-                    setTimeout(onComplete, 1000); // Wait a bit before unmounting
+                    setTimeout(onComplete, 800);
                     return 100;
                 }
-                return prev + Math.random() * 5;
+                return prev + Math.random() * 8;
             });
-        }, 100);
+        }, 80);
 
         return () => clearInterval(timer);
     }, [onComplete]);
@@ -23,32 +25,47 @@ const LoadingScreen = ({ onComplete }) => {
     return (
         <motion.div
             className={styles.container}
-            exit={{ opacity: 0, y: -50, transition: { duration: 0.8, ease: "easeInOut" } }}
+            exit={{ opacity: 0, scale: 1.1, transition: { duration: 0.8, ease: "circIn" } }}
         >
             <div className={styles.content}>
                 <motion.div
-                    className={styles.logo}
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    className={styles.brandWrapper}
+                    initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    transition={{ duration: 1.2 }}
                 >
-                    <div className={styles.logoText}>SMRIDGE</div>
-                    <div className={styles.logoGlow}></div>
+                    <img src={logo} alt="Smridge Logo" className={styles.logoImg} />
+                    <h1 className={styles.logoText}>SMRIDGE</h1>
+                    <p className={styles.motto}>Where Vision Meets Refrigeration</p>
                 </motion.div>
 
-                <div className={styles.progressContainer}>
-                    <div className={styles.progressBar} style={{ width: `${progress}%` }}></div>
+                <div className={styles.loaderWrapper}>
+                    <div className={styles.progressBarBg}>
+                        <motion.div 
+                            className={styles.progressBarFill} 
+                            style={{ width: `${progress}%` }}
+                            animate={{ backgroundColor: ["#00f0ff", "#7000ff", "#00f0ff"] }}
+                            transition={{ duration: 3, repeat: Infinity }}
+                        />
+                    </div>
+                    <span className={styles.percentage}>{Math.round(progress)}%</span>
                 </div>
 
                 <div className={styles.statusText}>
-                    {progress < 30 && "Initializing System..."}
-                    {progress >= 30 && progress < 70 && "Calibrating Sensors..."}
-                    {progress >= 70 && "Freshness Engine Online"}
+                    <AnimatePresence mode="wait">
+                        <motion.span
+                            key={Math.floor(progress / 25)}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            {progress < 25 && "Powering up Freshness..."}
+                            {progress >= 25 && progress < 50 && "Establishing Satellite Link..."}
+                            {progress >= 50 && progress < 75 && "Calibrating Neural Sensors..."}
+                            {progress >= 75 && "Securing Ecosystem access..."}
+                        </motion.span>
+                    </AnimatePresence>
                 </div>
-            </div>
-
-            <div className={styles.backgroundParticles}>
-                {/* Simple CSS particles can be added here or via canvas */}
             </div>
         </motion.div>
     );

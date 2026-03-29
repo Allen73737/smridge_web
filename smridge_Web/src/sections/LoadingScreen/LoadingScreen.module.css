@@ -4,82 +4,86 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: var(--color-bg);
+    background: radial-gradient(circle at center, #0b1120 0%, #050510 100%);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    overflow: hidden;
 }
 
 .content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-    z-index: 2;
+    gap: 3rem;
 }
 
-.logo {
-    position: relative;
-    margin-bottom: 3rem;
+.brandWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logoImg {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.4));
 }
 
 .logoText {
     font-family: 'Orbitron', sans-serif;
-    font-size: 4rem;
-    font-weight: 700;
-    letter-spacing: 0.5rem;
-    color: var(--color-text);
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: 0.8rem;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+}
+
+.motto {
+    font-family: 'Anta', sans-serif;
+    font-size: 1rem;
+    color: var(--color-primary);
+    letter-spacing: 0.2rem;
     text-transform: uppercase;
+    opacity: 0.8;
 }
 
-.logoGlow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 120%;
-    height: 120%;
-    background: radial-gradient(circle, rgba(0, 240, 255, 0.2) 0%, transparent 70%);
-    filter: blur(20px);
-    z-index: -1;
-    animation: pulse 2s infinite alternate;
+.loaderWrapper {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
-.progressContainer {
-    width: 300px;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    margin-bottom: 1rem;
-    position: relative;
+.progressBarBg {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
     overflow: hidden;
 }
 
-.progressBar {
+.progressBarFill {
     height: 100%;
-    background: var(--color-primary);
-    box-shadow: 0 0 10px var(--color-primary);
-    transition: width 0.1s linear;
+    background: linear-gradient(90deg, #00f0ff, #7000ff);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+}
+
+.percentage {
+    font-family: 'Anta', sans-serif;
+    font-size: 0.8rem;
+    color: #fff;
+    opacity: 0.6;
 }
 
 .statusText {
-    font-family: 'Inter', sans-serif;
+    margin-top: 1.5rem;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
     letter-spacing: 0.1rem;
-    min-height: 1.2rem;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 0.5;
-        transform: translate(-50%, -50%) scale(0.95);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.05);
-    }
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Roboto', sans-serif;
+    height: 1rem;
 }

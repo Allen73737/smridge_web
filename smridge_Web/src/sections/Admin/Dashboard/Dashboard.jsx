@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Wifi, AlertTriangle, Activity } from 'lucide-react';
 import styles from './Dashboard.module.css';
+import api from '../../../services/api';
+import socket from '../../../services/socket';
 
 const StatCard = ({ title, value, icon: Icon, color, delay }) => {
     return (
@@ -30,7 +32,6 @@ const StatCard = ({ title, value, icon: Icon, color, delay }) => {
                 </div>
             </div>
             <div className={styles.miniGraph}>
-                {/* Simple CSS bars animation */}
                 {[40, 60, 30, 70, 50, 80, 60].map((h, i) => (
                     <motion.div
                         key={i}
@@ -46,39 +47,45 @@ const StatCard = ({ title, value, icon: Icon, color, delay }) => {
     );
 };
 
-import api from '../../../services/api';
-
 const Dashboard = () => {
     const [statsData, setStatsData] = useState({
         users: 0,
         fridges: 0,
         alerts: 0,
-        freshness: 0
+        freshness: 0,
+        energyTrends: [],
+        activityTrends: []
     });
 
+    const fetchStats = async () => {
+        try {
+            const { data } = await api.get('/fridge/admin/stats');
+            setStatsData({
+                users: data.totalUsers,
+                fridges: data.activeFridges,
+                alerts: data.alertCount,
+                freshness: data.avgFreshness,
+                energyTrends: data.energyTrends || [],
+                activityTrends: data.activityTrends || []
+            });
+        } catch (error) {
+            console.error("Failed to fetch dashboard stats", error);
+        }
+    };
+
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const usersRes = await api.get('/users');
-                const fridgesRes = await api.get('/fridge');
-
-                const usersCount = usersRes.data.length;
-                const fridgesCount = fridgesRes.data.length;
-                const avgFreshness = fridgesCount > 0
-                    ? fridgesRes.data.reduce((acc, curr) => acc + curr.freshnessPercentage, 0) / fridgesCount
-                    : 0;
-
-                setStatsData({
-                    users: usersCount,
-                    fridges: fridgesCount,
-                    alerts: 3, // Dummy for now
-                    freshness: Math.round(avgFreshness)
-                });
-            } catch (error) {
-                console.error("Failed to fetch dashboard stats", error);
-            }
-        };
         fetchStats();
+        socket.on('fridgeUpdated', fetchStats);
+        socket.on('thresholdUpdated', fetchStats);
+        socket.on('statsUpdated', (newStats) => {
+            setStatsData(prev => ({ ...prev, ...newStats }));
+        });
+
+        return () => {
+            socket.off('fridgeUpdated');
+            socket.off('thresholdUpdated');
+            socket.off('statsUpdated');
+        };
     }, []);
 
     const stats = [
@@ -99,10 +106,14 @@ const Dashboard = () => {
                 <p>Real-time monitoring of Smridge Ecosystem</p>
             </motion.div>
 
-            <div className={styles.statsGrid}>
-                {stats.map((stat, i) => (
-                    <StatCard key={i} {...stat} delay={i * 0.1} />
-                ))}
+            <div className={styles.topRow}>
+                <div className={styles.statsSection}>
+                    <div className={styles.statsGrid}>
+                        {stats.map((stat, i) => (
+                            <StatCard key={i} {...stat} delay={i * 0.1} />
+                        ))}
+                    </div>
+                </div>
             </div>
 
             <div className={styles.chartsRow}>
@@ -112,10 +123,20 @@ const Dashboard = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4 }}
                 >
-                    <h3>User Growth</h3>
+                    <h3>Energy Consumption Trends</h3>
                     <div className={styles.chartPlaceholder}>
-                        {/* Chart Placeholder */}
-                        <div className={styles.chartLine} />
+                        <div className={styles.barChartContainer}>
+                            {(statsData.energyTrends || []).slice(-7).map((day, i) => (
+                                <motion.div
+                                    key={i}
+                                    className={styles.energyBar}
+                                    initial={{ height: 0 }}
+                                    animate={{ height: `${Math.min(day.totalEnergy * 10, 100)}%` }}
+                                    transition={{ duration: 1, delay: i * 0.1 }}
+                                    title={`${day._id}: ${day.totalEnergy.toFixed(2)} W`}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </motion.div>
 
@@ -125,10 +146,23 @@ const Dashboard = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5 }}
                 >
-                    <h3>Energy Consumption</h3>
+                    <h3>Ecosystem Activity (Last 24h)</h3>
                     <div className={styles.chartPlaceholder}>
-                        {/* Chart Placeholder */}
-                        <div className={styles.chartLine} style={{ borderColor: '#00ff9d' }} />
+                        <div className={styles.barChartContainer}>
+                            {(statsData.activityTrends || []).map((hour, i) => (
+                                <motion.div
+                                    key={i}
+                                    className={styles.activityBar}
+                                    initial={{ height: 0 }}
+                                    animate={{ height: `${Math.min(hour.count * 10, 100)}%` }}
+                                    transition={{ duration: 1, delay: i * 0.05 }}
+                                    title={`Hour ${hour._id}: ${hour.count} events`}
+                                />
+                            ))}
+                            {statsData.activityTrends.length === 0 && (
+                                <div className={styles.emptyChart}>No activity recorded</div>
+                            )}
+                        </div>
                     </div>
                 </motion.div>
             </div>

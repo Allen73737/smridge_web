@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Shield, AlertTriangle, User, FileText, Filter } from 'lucide-react';
+import { Clock, Shield, AlertTriangle, User, FileText, Filter, RefreshCw } from 'lucide-react';
 import styles from './ActivityLogs.module.css';
 import api from '../../../services/api';
+import socket from '../../../services/socket';
 
 const LogItem = ({ type, action, user, time, details, index }) => {
     const icons = {
         auth: User,
         system: FileText,
         alert: AlertTriangle,
-        admin: Shield
+        admin: Shield,
+        inventory: FileText
     };
 
     const colors = {
         auth: '#00f0ff',
         system: '#00ff9d',
         alert: '#ff0055',
-        admin: '#7000ff'
+        admin: '#7000ff',
+        inventory: '#ffaa00'
     };
 
     const Icon = icons[type] || FileText;
@@ -47,45 +50,108 @@ const LogItem = ({ type, action, user, time, details, index }) => {
 
 const ActivityLogs = () => {
     const [logs, setLogs] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
+    const [userFilter, setUserFilter] = useState('all');
+
+    const fetchInitialData = async () => {
+        try {
+            setLoading(true);
+            const [logsRes, usersRes] = await Promise.all([
+                api.get('/logs'),
+                api.get('/users')
+            ]);
+            setLogs(logsRes.data);
+            setUsers(usersRes.data);
+        } catch {
+            console.error("Failed to fetch logs or users");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchLogs = async () => {
-            try {
-                const { data } = await api.get('/logs');
-                setLogs(data);
-            } catch (error) {
-                console.error("Failed to fetch logs");
-            } finally {
-                setLoading(false);
-            }
+        fetchInitialData();
+
+        // Socket listeners
+        socket.on('logAdded', (newLog) => {
+            setLogs(prev => [newLog, ...prev]);
+        });
+
+        socket.on('userAdded', (newUser) => {
+            setUsers(prev => [newUser, ...prev]);
+        });
+
+        return () => {
+            socket.off('logAdded');
+            socket.off('userAdded');
         };
-        fetchLogs();
     }, []);
 
-    const filteredLogs = filter === 'all'
-        ? logs
-        : logs.filter(log => {
-            if (filter === 'auth') return ['LOGIN', 'REGISTER'].includes(log.action);
-            if (filter === 'admin') return ['DELETE_USER', 'BLOCK_USER', 'UPDATE_ROLE', 'UPDATE_THRESHOLD', 'UPLOAD_APK'].includes(log.action);
-            return true;
-        });
+    const filteredLogs = logs.filter(log => {
+        // Category Filter
+        let categoryMatch = true;
+        if (filter === 'auth') categoryMatch = ['LOGIN', 'REGISTER'].includes(log.action);
+        else if (filter === 'admin') categoryMatch = ['DELETE_USER', 'BLOCK_USER', 'UPDATE_ROLE', 'UPDATE_THRESHOLD', 'UPLOAD_APK'].includes(log.action);
+        else if (filter === 'inventory') categoryMatch = ['ADD_ITEM', 'UPDATE_ITEM', 'DELETE_ITEM'].includes(log.action);
+        else if (filter === 'alerts') categoryMatch = ['SPOILAGE_ALERT', 'TEMP_ALERT'].includes(log.action);
+        else if (filter === 'user_only') {
+            const isSmridge = log.userId?.name?.toLowerCase().includes('smridge');
+            categoryMatch = log.role === 'user' && !isSmridge;
+        }
+
+        // User Filter
+        let userMatch = true;
+        if (userFilter !== 'all') {
+            userMatch = log.userId?._id === userFilter;
+        }
+
+        return categoryMatch && userMatch;
+    });
+
+    const getLogType = (action) => {
+        if (['LOGIN', 'REGISTER'].includes(action)) return 'auth';
+        if (['ADD_ITEM', 'UPDATE_ITEM', 'DELETE_ITEM'].includes(action)) return 'inventory';
+        if (['SPOILAGE_ALERT', 'TEMP_ALERT'].includes(action)) return 'alert';
+        return 'admin';
+    };
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1>Activity Logs</h1>
                 <div className={styles.controls}>
+                    <button 
+                        onClick={fetchInitialData}
+                        className={styles.refreshBtn}
+                        title="Refresh Data"
+                    >
+                        <RefreshCw size={18} className={loading ? styles.spinning : ''} />
+                    </button>
                     <Filter size={18} className={styles.filterIcon} />
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                         className={styles.filterSelect}
                     >
-                        <option value="all">All Events</option>
+                        <option value="all">All Categories</option>
+                        <option value="user_only">User Activity Only</option>
                         <option value="auth">Authentication</option>
                         <option value="admin">Admin Actions</option>
+                        <option value="inventory">Inventory Updates</option>
+                        <option value="alerts">System Alerts</option>
+                    </select>
+
+                    <select
+                        value={userFilter}
+                        onChange={(e) => setUserFilter(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="all">All Users</option>
+                        {users.map(u => (
+                            <option key={u._id} value={u._id}>{u.name}</option>
+                        ))}
                     </select>
                 </div>
             </div>
@@ -95,7 +161,7 @@ const ActivityLogs = () => {
                     {filteredLogs.map((log, index) => (
                         <LogItem
                             key={log._id}
-                            type={['LOGIN', 'REGISTER'].includes(log.action) ? 'auth' : 'admin'}
+                            type={getLogType(log.action)}
                             action={log.action}
                             user={log.userId?.name || 'System'}
                             time={new Date(log.timestamp).toLocaleTimeString()}

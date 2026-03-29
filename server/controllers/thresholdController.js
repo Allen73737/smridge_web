@@ -12,9 +12,12 @@ const getThresholds = async (req, res) => {
     } else {
         // Return defaults if none
         res.json({
-            gasLimit: 1,
-            temperatureLimit: 5,
-            humidityLimit: 85,
+            gasLimitMin: 0.1,
+            gasLimitMax: 1.0,
+            temperatureLimitMin: 0,
+            temperatureLimitMax: 10,
+            humidityLimitMin: 40,
+            humidityLimitMax: 95,
             freshnessWarningLevel: 50,
         });
     }
@@ -24,12 +27,23 @@ const getThresholds = async (req, res) => {
 // @route   PUT /api/threshold/update
 // @access  Private/Admin
 const updateThresholds = async (req, res) => {
-    const { gasLimit, temperatureLimit, humidityLimit, freshnessWarningLevel } = req.body;
+    const {
+        gasLimitMin,
+        gasLimitMax,
+        temperatureLimitMin,
+        temperatureLimitMax,
+        humidityLimitMin,
+        humidityLimitMax,
+        freshnessWarningLevel
+    } = req.body;
 
     const threshold = await Threshold.create({
-        gasLimit,
-        temperatureLimit,
-        humidityLimit,
+        gasLimitMin,
+        gasLimitMax,
+        temperatureLimitMin,
+        temperatureLimitMax,
+        humidityLimitMin,
+        humidityLimitMax,
         freshnessWarningLevel,
         updatedBy: req.user._id,
     });

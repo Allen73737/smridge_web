@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http');
@@ -11,6 +12,12 @@ const { errorHandler } = require('./middleware/errorHandler');
 dotenv.config();
 
 connectDB();
+
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -25,7 +32,8 @@ const io = new Server(server, {
 app.set('socketio', io);
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(cors());
 app.use(helmet({
     crossOriginResourcePolicy: false,
@@ -38,6 +46,7 @@ app.use('/api/fridge', require('./routes/fridgeRoutes'));
 app.use('/api/threshold', require('./routes/thresholdRoutes'));
 app.use('/api/apk', require('./routes/apkRoutes'));
 app.use('/api/logs', require('./routes/logRoutes'));
+app.use('/api/team', require('./routes/teamRoutes'));
 
 // Static folder for uploads
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));

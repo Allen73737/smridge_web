@@ -1,0 +1,175 @@
+.insightsSection {
+    padding: 10rem 2rem;
+    position: relative;
+    background: var(--color-bg);
+    overflow: hidden;
+    perspective: 2000px;
+}
+
+.backgroundBlur {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+}
+
+.header {
+    max-width: 800px;
+    margin: 0 auto 6rem;
+    text-align: center;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    color: var(--color-primary);
+    font-family: 'Roboto', sans-serif; /* Changed from Anta */
+    font-size: 0.8rem;
+    letter-spacing: 0.15rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+}
+
+.carouselContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    position: relative;
+}
+
+.carouselStage {
+    flex: 1;
+    height: 500px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insightCard {
+    width: 100%;
+    max-width: 800px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 40px;
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: absolute;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    transform-style: preserve-3d;
+}
+
+.cardGlow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.iconWrapper {
+    width: 100px;
+    height: 100px;
+    background: rgba(0, 240, 255, 0.1);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    margin-bottom: 3rem;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.insightContent {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+    max-width: 90%;
+}
+
+.cardFooter {
+    position: absolute;
+    bottom: 3rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.indicatorContainer {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.activeIndicator {
+    width: 30px;
+    border-radius: 10px;
+    background: var(--color-primary);
+    box-shadow: 0 0 10px var(--color-primary);
+}
+
+.navBtn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.navBtn:hover {
+    background: var(--color-primary);
+    color: #000;
+    transform: scale(1.1);
+}
+
+@media (max-width: 992px) {
+    .insightContent {
+        font-size: 1.6rem;
+    }
+    
+    .carouselContainer {
+        gap: 1rem;
+    }
+    
+    .navBtn {
+        display: none;
+    }
+    
+    .insightCard {
+        padding: 2.5rem;
+    }
+}

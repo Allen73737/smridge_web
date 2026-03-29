@@ -1,18 +1,22 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api', // Update for production
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api', // Update for production
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Add auth token to requests
+let authToken = null;
+
+export const setAuthToken = (token) => {
+    authToken = token;
+};
+
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        if (authToken) {
+            config.headers.Authorization = `Bearer ${authToken}`;
         }
         return config;
     },

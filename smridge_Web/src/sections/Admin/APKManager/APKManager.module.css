@@ -1,20 +1,49 @@
 .container {
-    width: 100%;
+    padding: 2rem;
 }
 
 .header {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .header h1 {
-    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
     color: #fff;
-    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
 }
 
 .header p {
-    font-family: 'Inter', sans-serif;
     color: rgba(255, 255, 255, 0.6);
+}
+
+.platformTabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s;
+    border: 1px solid transparent;
+}
+
+.tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.activeTab {
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--color-primary);
+    border-color: rgba(0, 240, 255, 0.2);
 }
 
 .grid {
@@ -23,36 +52,32 @@
     gap: 2rem;
 }
 
-.uploadCard,
-.infoCard {
+.uploadCard, .infoCard {
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--color-glass-border);
-    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
     padding: 2rem;
 }
 
-.uploadCard h3,
-.infoCard h3 {
-    font-family: 'Orbitron', sans-serif;
-    color: #fff;
+.uploadCard h3, .infoCard h3 {
+    font-size: 1.2rem;
     margin-bottom: 1.5rem;
+    color: #fff;
+    font-family: 'Anta', sans-serif;
 }
 
 .dropZone {
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.2);
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
     transition: all 0.3s;
     margin-bottom: 2rem;
+    background: rgba(0, 0, 0, 0.2);
 }
 
-.dropZone.dragging {
+.dragging {
     border-color: var(--color-primary);
     background: rgba(0, 240, 255, 0.05);
 }
@@ -60,26 +85,16 @@
 .uploadIcon {
     color: var(--color-primary);
     margin-bottom: 1rem;
-}
-
-.dropZone p {
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 1rem;
+    opacity: 0.5;
 }
 
 .browseBtn {
-    background: rgba(255, 255, 255, 0.1);
+    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
     color: #fff;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.browseBtn:hover {
-    background: var(--color-primary);
-    color: #000;
+    font-size: 0.9rem;
 }
 
 .formGroup {
@@ -88,121 +103,103 @@
 
 .formGroup label {
     display: block;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.6);
     margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
 }
 
-.input,
-.textarea {
+.input, .textarea {
     width: 100%;
     background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--color-glass-border);
-    border-radius: 8px;
-    padding: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
     color: #fff;
-    font-family: 'Inter', sans-serif;
-    outline: none;
-}
-
-.input:focus,
-.textarea:focus {
-    border-color: var(--color-primary);
+    font-family: inherit;
 }
 
 .deployBtn {
     width: 100%;
-    background: var(--color-secondary);
-    color: #000;
-    border: none;
     padding: 1rem;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+    background: var(--color-primary);
+    color: #000;
+    border-radius: 12px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    transition: all 0.3s;
-}
-
-.deployBtn:hover {
-    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+    font-family: 'Anta', sans-serif;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
 }
 
 .currentVersion {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.2rem;
     margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--color-glass-border);
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .fileIcon {
-    color: var(--color-primary);
+    color: var(--color-secondary);
 }
 
 .versionNumber {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 700;
     color: #fff;
+    font-family: 'Roboto', sans-serif;
 }
 
 .pubDate {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.5);
+    font-family: 'Roboto', sans-serif;
 }
 
 .statRow {
     display: flex;
     justify-content: space-between;
     margin-bottom: 1rem;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
 }
 
-.hash {
-    font-family: 'monospace';
-    color: rgba(255, 255, 255, 0.4);
+.statRow span:first-child {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .downloadBtn {
     width: 100%;
-    background: transparent;
-    border: 1px solid var(--color-primary);
-    color: var(--color-primary);
     padding: 0.8rem;
-    border-radius: 8px;
-    margin: 1.5rem 0;
-    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    transition: all 0.3s;
-}
-
-.downloadBtn:hover {
-    background: rgba(0, 240, 255, 0.1);
+    margin: 2rem 0;
 }
 
 .warningBox {
-    font-size: 0.8rem;
-    color: #888;
-    background: rgba(0, 0, 0, 0.3);
     padding: 1rem;
-    border-radius: 8px;
-    line-height: 1.5;
+    background: rgba(255, 170, 0, 0.05);
+    border: 1px solid rgba(255, 170, 0, 0.1);
+    border-radius: 12px;
+    color: #ffaa00;
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 
 .progressBar {
     width: 100%;
     height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
     overflow: hidden;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .progressFill {
@@ -211,12 +208,264 @@
 }
 
 .uploadingState {
-    width: 80%;
-    text-align: center;
+    width: 100%;
+    color: var(--color-primary);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
     .grid {
         grid-template-columns: 1fr;
+    }
+}
+
+.uploadTypeToggle {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.typeBtn {
+    flex: 1;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: 'Anta', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.activeType {
+    background: var(--color-primary);
+    color: #000;
+    font-weight: 600;
+}
+
+.linkInputContainer {
+    margin-bottom: 2rem;
+}
+
+.linkInputContainer label {
+    display: block;
+    margin-bottom: 0.8rem;
+    font-family: 'Anta', sans-serif;
+    color: var(--color-primary);
+}
+
+.historyHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.countBadge {
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--color-primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.historyList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 2rem;
+    padding-right: 0.5rem;
+}
+
+.historyItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.historyItem.latest {
+    border-color: var(--color-primary);
+    background: rgba(0, 240, 255, 0.05);
+}
+
+.historyMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.versionCol {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.vNum {
+    font-family: 'Anta', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.latestTag {
+    font-size: 0.6rem;
+    background: var(--color-primary);
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+}
+
+.vDate {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.historyActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.miniBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.miniBtn:hover {
+    background: var(--color-primary);
+    color: #000;
+}
+
+.deleteBtn:hover {
+    background: #ff0055 !important;
+    color: #fff !important;
+}
+
+.emptyHistory {
+    text-align: center;
+    padding: 3rem;
+    color: rgba(255, 255, 255, 0.2);
+    font-style: italic;
+}
+
+/* Premium Deletion Snackbar */
+.snackbarOverlay {
+    position: fixed;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.deleteSnackbar {
+    pointer-events: auto;
+    background: rgba(15, 15, 20, 0.9);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 0, 85, 0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 0, 85, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    min-width: 600px;
+}
+
+.snackbarContent {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.snackbarIcon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 0, 85, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff0055;
+    box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
+}
+
+.snackbarText h4 {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+}
+
+.snackbarText p {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+.snackbarActions {
+    display: flex;
+    gap: 1rem;
+}
+
+.cancelBtn {
+    padding: 0.8rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.cancelBtn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.confirmDeleteBtn {
+    padding: 0.8rem 1.5rem;
+    background: #ff0055;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+    transition: all 0.3s;
+}
+
+.confirmDeleteBtn:hover {
+    background: #ff2a75;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 25px rgba(255, 0, 85, 0.4);
+}
+
+@media (max-width: 768px) {
+    .deleteSnackbar {
+        min-width: 90%;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem;
     }
 }

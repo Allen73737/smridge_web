@@ -1,61 +1,79 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import styles from './Features.module.css';
+import { TextReveal, Reveal } from '../../components/Effects/Reveal';
 
 const featuresData = [
     {
         id: 1,
-        title: "Real-time Freshness Meter",
-        description: "Know exactly when your food is at its peak. Our AI analyzes chemical signatures to give you a precise freshness score.",
+        title: "Dynamic Freshness Analysis",
+        description: "Powered by advanced neural sensors, Smridge monitors chemical signatures to track the real-time decay of perishables, ensuring you never miss a meal's peak.",
         color: "#00f0ff"
     },
     {
-        id: 2,
-        title: "Auto Expiry Detection",
-        description: "Never guess expiration dates again. Smridge automatically logs items and alerts you before they spoil.",
-        color: "#00ff9d"
-    },
-    {
         id: 3,
-        title: "Smart Notifications",
-        description: "Get notified when you're low on essentials or when it's time to use that kale you bought last week.",
+        title: "Predictive Inventory Sync",
+        description: "Using intelligent cloud algorithms, we predict your consumption patterns and alert you before you run out of essentials, keeping your fridge perfectly stocked.",
         color: "#7000ff"
     },
     {
         id: 4,
-        title: "Live Monitoring",
-        description: "Check your fridge contents from anywhere in the world via the Smridge App. See what's inside without opening the door.",
+        title: "Global Threshold Control",
+        description: "Precision at your fingertips. Adjust environmental limits from anywhere in the world and watch your Smridge adapt its cooling curve in real-time.",
         color: "#ff0055"
+    },
+    {
+        id: 5,
+        title: "AI Vision Intelligence",
+        description: "Our integrated visual cores identify every individual item upon entry, automatically categorizing and tracking expiration dates without manual input.",
+        color: "#ffaa00"
+    },
+    {
+        id: 6,
+        title: "Cloud Environment Sync",
+        description: "Seamlessly synchronize your refrigerator's internal climate with local external humidity and temperature trends for optimal energy efficiency.",
+        color: "#0088ff"
     }
 ];
 
 const FeatureCard = ({ feature, index, range, targetScale, progress }) => {
     const container = useRef(null);
-    const { scrollYProgress } = useScroll({
-        target: container,
-        offset: ['start end', 'start start']
-    });
-
+    
+    // Use the progress from parent to drive scale, rotation, and slight translation
     const scale = useTransform(progress, range, [1, targetScale]);
+    const rotate = useTransform(progress, range, [0, -2]); // Subtle rotation as it stacks
+    const opacity = useTransform(progress, [range[0], range[0] + 0.1], [1, 0.9]); // Slight dimming of stacked cards
 
     return (
         <div ref={container} className={styles.cardContainer}>
             <motion.div
-                style={{ scale, top: `calc(-5% + ${index * 25}px)` }}
+                style={{ 
+                    scale, 
+                    rotate,
+                    opacity,
+                    top: `calc(10% + ${index * 30}px)`, // Adjust stack spacing
+                    zIndex: index // Ensure cards stack correctly
+                }}
                 className={styles.card}
             >
                 <div className={styles.cardBody} style={{ borderTop: `4px solid ${feature.color}` }}>
-                    <h2 style={{ color: feature.color }}>{feature.title}</h2>
-                    <p>{feature.description}</p>
+                    <div className={styles.cardHeader}>
+                        <h3 style={{ color: feature.color }}>{feature.title}</h3>
+                        <span className={styles.indexNumber}>{(index + 1).toString().padStart(2, '0')}</span>
+                    </div>
+                    <p className="secondary-font">{feature.description}</p>
                     <div className={styles.mockupPlaceholder}>
-                        {/* Placeholder for feature UI visualization */}
-                        <div className={styles.mockupContent} style={{ background: `linear-gradient(45deg, ${feature.color}22, transparent)` }}></div>
+                        <div className={styles.mockupContent} style={{ background: `linear-gradient(45deg, ${feature.color}15, transparent)` }}>
+                             <div className={styles.glassEffect} />
+                        </div>
                     </div>
                 </div>
             </motion.div>
         </div>
     );
 };
+
+
 
 const Features = () => {
     const container = useRef(null);
@@ -67,18 +85,22 @@ const Features = () => {
     return (
         <section id="features" className={styles.featuresSection} ref={container}>
             <div className={styles.header}>
-                <h2 className="text-gradient">Capabilities</h2>
-                <p>Designed for the future of living.</p>
+                <h2 className="text-gradient">
+                    <TextReveal text="Ecosystem Intelligence" />
+                </h2>
+                <Reveal delay={0.4}>
+                    <p className="section-subtext">Features that transform refrigeration into a vision-driven experience.</p>
+                </Reveal>
             </div>
 
             {featuresData.map((feature, i) => {
-                const targetScale = 1 - ((featuresData.length - i) * 0.05);
+                const targetScale = 1 - ((featuresData.length - i) * 0.04);
                 return (
                     <FeatureCard
                         key={feature.id}
                         feature={feature}
                         index={i}
-                        range={[i * 0.25, 1]}
+                        range={[i * (1 / featuresData.length), 1]}
                         targetScale={targetScale}
                         progress={scrollYProgress}
                     />

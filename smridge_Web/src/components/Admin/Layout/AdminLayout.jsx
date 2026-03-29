@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Users, Thermometer, Settings,
-    Smartphone, FileText, LogOut, Menu, ChevronLeft
+    Smartphone, FileText, LogOut, Menu, ChevronLeft,
+    ExternalLink, Info
 } from 'lucide-react';
 import styles from './AdminLayout.module.css';
 
@@ -39,6 +40,20 @@ const AdminLayout = () => {
     const navigate = useNavigate();
     const { user, logout, loading } = useAuth();
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (!mobile) setIsSidebarOpen(true);
+            else setIsSidebarOpen(false);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     React.useEffect(() => {
         if (!loading && !user) {
             navigate('/admin');
@@ -52,7 +67,8 @@ const AdminLayout = () => {
         { icon: Users, label: 'Users', path: '/admin/users' },
         { icon: Thermometer, label: 'Fridge Status', path: '/admin/fridge' },
         { icon: Settings, label: 'Thresholds', path: '/admin/thresholds' },
-        { icon: Smartphone, label: 'APK Manager', path: '/admin/apk' },
+        { icon: Smartphone, label: 'Build Manager', path: '/admin/apk' },
+        { icon: Users, label: 'Team Settings', path: '/admin/team' },
         { icon: FileText, label: 'Activity Logs', path: '/admin/logs' },
     ];
 
@@ -63,13 +79,29 @@ const AdminLayout = () => {
 
     return (
         <div className={styles.adminContainer}>
+            <AnimatePresence>
+                {isMobile && isSidebarOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className={styles.backdrop}
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                )}
+            </AnimatePresence>
+
             <motion.aside
-                className={styles.sidebar}
-                animate={{ width: isCollapsed ? 80 : 250 }}
+                className={`${styles.sidebar} ${isMobile ? styles.mobileSidebar : ''} ${isSidebarOpen ? styles.open : styles.closed}`}
+                initial={false}
+                animate={{ 
+                    width: isMobile ? '280px' : (isCollapsed ? 80 : 250),
+                    x: isMobile && !isSidebarOpen ? '-100%' : 0
+                }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
                 <div className={styles.sidebarHeader}>
-                    {!isCollapsed && (
+                    {(!isCollapsed || isMobile) && (
                         <motion.h1
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -79,12 +111,22 @@ const AdminLayout = () => {
                             SMRIDGE
                         </motion.h1>
                     )}
-                    <button
-                        className={styles.collapseBtn}
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                    >
-                        {isCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
-                    </button>
+                    {!isMobile && (
+                        <button
+                            className={styles.collapseBtn}
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                        >
+                            {isCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
+                        </button>
+                    )}
+                    {isMobile && (
+                        <button
+                            className={styles.collapseBtn}
+                            onClick={() => setIsSidebarOpen(false)}
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                    )}
                 </div>
 
                 <nav className={styles.navigation}>
@@ -95,32 +137,53 @@ const AdminLayout = () => {
                             label={item.label}
                             path={item.path}
                             isActive={location.pathname === item.path}
-                            isCollapsed={isCollapsed}
-                            onClick={() => navigate(item.path)}
+                            isCollapsed={isCollapsed && !isMobile}
+                            onClick={() => {
+                                navigate(item.path);
+                                if (isMobile) setIsSidebarOpen(false);
+                            }}
                         />
                     ))}
                 </nav>
 
                 <div className={styles.sidebarFooter}>
                     <SidebarItem
+                        icon={ExternalLink}
+                        label="Go to Website"
+                        path="/"
+                        isActive={false}
+                        isCollapsed={isCollapsed && !isMobile}
+                        onClick={() => {
+                            navigate('/?skipLoading=true');
+                            if (isMobile) setIsSidebarOpen(false);
+                        }}
+                    />
+                    <SidebarItem
                         icon={LogOut}
                         label="Logout"
                         path="#"
                         isActive={false}
-                        isCollapsed={isCollapsed}
+                        isCollapsed={isCollapsed && !isMobile}
                         onClick={handleLogout}
                     />
                 </div>
             </motion.aside>
 
-            <main className={styles.mainContent}>
+            <main className={`${styles.mainContent} ${isMobile ? styles.mainMobile : ''}`}>
                 <header className={styles.topBar}>
-                    <h2 className={styles.pageTitle}>
-                        {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
-                    </h2>
+                    <div className={styles.topBarLeft}>
+                        {isMobile && (
+                            <button className={styles.mobileMenuBtn} onClick={() => setIsSidebarOpen(true)}>
+                                <Menu size={24} />
+                            </button>
+                        )}
+                        <h2 className={styles.pageTitle}>
+                            {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
+                        </h2>
+                    </div>
                     <div className={styles.userProfile}>
                         <div className={styles.avatar}>{user?.name?.charAt(0) || 'A'}</div>
-                        <span className={styles.userName}>{user?.name || 'Admin'}</span>
+                        {!isMobile && <span className={styles.userName}>{user?.name || 'Admin'}</span>}
                     </div>
                 </header>
 

@@ -1,20 +1,35 @@
 const mongoose = require('mongoose');
 
 const thresholdSchema = mongoose.Schema({
-    gasLimit: {
+    gasLimitMin: {
         type: Number,
         required: true,
-        default: 1,
+        default: 0.1,
     },
-    temperatureLimit: {
+    gasLimitMax: {
         type: Number,
         required: true,
-        default: 5,
+        default: 1.0,
     },
-    humidityLimit: {
+    temperatureLimitMin: {
         type: Number,
         required: true,
-        default: 85,
+        default: 0,
+    },
+    temperatureLimitMax: {
+        type: Number,
+        required: true,
+        default: 10,
+    },
+    humidityLimitMin: {
+        type: Number,
+        required: true,
+        default: 40,
+    },
+    humidityLimitMax: {
+        type: Number,
+        required: true,
+        default: 95,
     },
     freshnessWarningLevel: {
         type: Number,

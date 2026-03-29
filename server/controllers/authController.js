@@ -37,12 +37,19 @@ const registerUser = async (req, res) => {
 
     if (user) {
         // Log activity
-        await ActivityLog.create({
+        const log = await ActivityLog.create({
             userId: user._id,
             action: 'REGISTER',
             role: 'user',
             details: 'User registered',
         });
+
+        // Emit socket events
+        const io = req.app.get('socketio');
+        if (io) {
+            io.emit('userAdded', user);
+            io.emit('logAdded', log);
+        }
 
         res.status(201).json({
             _id: user.id,
@@ -85,12 +92,16 @@ const loginUser = async (req, res) => {
 
             // Log activity
             try {
-                await ActivityLog.create({
+                const log = await ActivityLog.create({
                     userId: user._id,
                     action: 'LOGIN',
                     role: user.role,
                     details: 'User logged in',
                 });
+                
+                const io = req.app.get('socketio');
+                if (io) io.emit('logAdded', log);
+
                 console.log('Activity logged');
             } catch (logErr) {
                 console.error('Activity log failed:', logErr);
@@ -110,7 +121,8 @@ const loginUser = async (req, res) => {
         }
     } catch (error) {
         console.error('Login Error:', error);
-        res.status(500).json({ message: error.message });
+        const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+        res.status(statusCode).json({ message: error.message });
     }
 };
 

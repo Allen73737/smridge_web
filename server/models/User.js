@@ -28,6 +28,14 @@ const userSchema = mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    profileImage: {
+        type: String,
+        default: "",
+    },
+    fcmToken: {
+        type: String,
+        default: null,
+    },
 }, {
     timestamps: true,
 });

@@ -40,31 +40,27 @@
     max-width: 600px;
 }
 
-.subHeadline {
-    font-family: 'Inter', sans-serif;
-    color: var(--color-primary);
-    font-size: 1.2rem;
-    letter-spacing: 0.3rem;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-    font-weight: 500;
-}
+
 
 .headline {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 4.5rem;
+    font-family: 'Anta', sans-serif;
     line-height: 1.1;
     margin-bottom: 2rem;
-    font-weight: 700;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #fff 0%, var(--color-primary) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.3));
 }
 
 .description {
-    font-family: 'Inter', sans-serif;
-    color: rgba(224, 224, 224, 0.8);
-    font-size: 1.1rem;
+    font-family: 'Roboto', sans-serif;
+    color: rgba(224, 224, 224, 0.9);
+    font-size: 1.35rem;
     line-height: 1.6;
-    margin-bottom: 3rem;
-    max-width: 500px;
+    margin-bottom: 4rem;
+    max-width: 650px;
 }
 
 .buttonGroup {
@@ -77,7 +73,7 @@
     background: rgba(0, 240, 255, 0.1);
     border: 1px solid var(--color-primary);
     color: var(--color-primary);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Anta', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.1rem;
     font-weight: 600;
@@ -97,7 +93,7 @@
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: var(--color-text);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Anta', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.1rem;
     font-weight: 600;
@@ -143,31 +139,190 @@
 }
 
 @media (max-width: 1024px) {
+    .heroSection {
+        height: auto;
+        min-height: 100vh;
+        padding-top: 100px;
+        padding-bottom: 50px;
+    }
+
     .contentContainer {
         flex-direction: column-reverse;
         justify-content: center;
         text-align: center;
+        height: auto;
     }
 
     .textContent {
-        margin-top: -2rem;
+        margin-top: 0;
         z-index: 3;
+        padding: 0 1rem;
     }
 
     .headline {
-        font-size: 3rem;
+        font-size: clamp(1.8rem, 8vw, 2.5rem);
+        margin-bottom: 1.5rem;
     }
 
     .description {
-        margin: 0 auto 2rem auto;
+        font-size: 1.1rem;
+        margin: 0 auto 2.5rem auto;
     }
 
     .buttonGroup {
-        justify-content: center;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .primaryButton, .secondaryButton {
+        width: 100%;
     }
 
     .modelContainer {
         width: 100%;
-        min-height: 400px;
+        min-height: 350px;
+        height: 350px;
+        margin-bottom: 1rem;
     }
+}
+
+/* Embedded Fridge Status Card (Integrated) */
+.embeddedScreenContainer {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    user-select: none;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 450px;
+    height: 320px;
+}
+
+.embeddedStatusCard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(0, 8, 12, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 25px 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    color: white;
+}
+
+.statusRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.cyanValue {
+    color: #4df0ff;
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-shadow: 0 0 15px rgba(77, 240, 255, 0.4);
+}
+
+.freshDots {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    opacity: 0.25;
+}
+
+.dotActive {
+    opacity: 1;
+    transform: scale(1.15);
+    box-shadow: 0 0 12px currentColor;
+}
+
+.green { color: #50ffab; background-color: currentColor; }
+.yellow { color: #ffd740; background-color: currentColor; }
+.red { color: #ff5252; background-color: currentColor; }
+
+.doorStatusWrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.doorValue {
+    color: #50ffab;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+.chevron {
+    background: rgba(255, 255, 255, 0.08);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    color: #50ffab;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.doorBadge {
+    background: rgba(0, 255, 157, 0.15);
+    color: #00ff9d;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    border: 1px solid rgba(0, 255, 157, 0.35);
+    text-transform: uppercase;
+}
+
+.greenText {
+    color: #00ff9d;
+    font-weight: 600;
+}
+
+.freshDots {
+    display: flex;
+    gap: 4px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dotActive {
+    background: #00ff9d;
+    box-shadow: 0 0 8px #00ff9d;
+}
+
+.doorBadge {
+    background: rgba(0, 255, 157, 0.1);
+    color: #00ff9d;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.7rem;
 }

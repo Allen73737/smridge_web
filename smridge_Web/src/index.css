@@ -1,29 +1,78 @@
 :root {
-  --color-bg: #05050a;
-  --color-text: #e0e0e0;
-  --color-primary: #00f0ff;
-  --color-secondary: #00ff9d;
-  --color-accent: #7000ff;
-  --color-glass: rgba(255, 255, 255, 0.05);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
-  --font-family: 'Inter', sans-serif;
-  --transition-speed: 0.3s;
-  --glow-shadow: 0 0 20px var(--color-primary);
+    --color-primary: #00f0ff;
+    --color-secondary: #00ff9d;
+    --color-accent: #7000ff;
+    --color-bg: #030a16;
+    --color-card-bg: rgba(6, 12, 26, 0.7);
+    --color-glass-border: rgba(0, 240, 255, 0.1);
+    --color-text: #ffffff;
+    --grad-blue: linear-gradient(135deg, #00f0ff 0%, #7000ff 100%);
+    --grad-dark: radial-gradient(circle at top, #060c1a 0%, #030712 100%);
+    --color-glass: rgba(255, 255, 255, 0.03);
+    --transition-speed: 0.3s;
+    --glow-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
 }
 
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  cursor: none; /* Custom cursor implementation later */
+  box-sizing: border-box;
 }
 
 body {
-  background-color: var(--color-bg);
+  background: var(--grad-dark);
+  background-attachment: fixed;
   color: var(--color-text);
-  font-family: var(--font-family);
+  font-family: 'Roboto', sans-serif;
+  min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Anta', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+h1 { 
+  font-size: clamp(2.5rem, 8vw, 4.5rem); 
+  line-height: 1.05; 
+  text-transform: uppercase; 
+}
+h2 { 
+  font-size: clamp(2rem, 5vw, 3rem); 
+  line-height: 1.1; 
+  text-transform: uppercase; 
+  margin-bottom: 1.5rem; 
+}
+h3 { 
+  font-size: clamp(1.4rem, 4vw, 1.8rem); 
+  line-height: 1.2; 
+}
+
+.section-subtext {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.section-tagline {
+  font-family: 'Anta', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.3rem;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.secondary-font {
+  font-family: 'Anta', sans-serif !important;
 }
 
 a {
@@ -39,7 +88,8 @@ button {
   background: none;
   border: none;
   font-family: inherit;
-  cursor: pointer; /* Will override with custom cursor logic */
+  cursor: pointer;
+  /* Will override with custom cursor logic */
 }
 
 /* Custom Scrollbar */
@@ -64,7 +114,9 @@ button {
 .text-gradient {
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-weight: 900;
 }
 
 .text-glow {
@@ -81,11 +133,66 @@ button {
 
 /* Animation Utilities */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+.scroll-blur {
+  filter: blur(15px) saturate(1.5) brightness(0.8);
+  transition: filter 0.3s ease-out;
+  pointer-events: none;
+}
+
+@keyframes streakMove {
+  0% { transform: translateX(-100%) skewX(-45deg); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(200%) skewX(-45deg); opacity: 0; }
+}
+
+.streak-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.streak-container.active {
+  opacity: 1;
+}
+
+.streak {
+  position: absolute;
+  width: 40%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  animation: streakMove 0.6s linear infinite;
+  box-shadow: 0 0 15px var(--color-primary);
+}
+
+.streak:nth-child(2) { animation-delay: 0.1s; height: 1px; width: 60%; }
+.streak:nth-child(3) { animation-delay: 0.2s; height: 3px; width: 30%; }
+.streak:nth-child(4) { animation-delay: 0.3s; height: 1px; width: 50%; }
+.streak:nth-child(5) { animation-delay: 0.4s; height: 2px; width: 45%; }

@@ -6,12 +6,18 @@ const {
     uploadAPK,
     getLatestAPK,
     getAllAPKs,
+    getAppHistory,
+    deleteAPK,
+    setLatestAPK,
 } = require('../controllers/apkController');
 const { protect } = require('../middleware/authMiddleware');
 const { admin } = require('../middleware/roleMiddleware');
 
 // Multer Config
-const storage = multer.diskStorage({
+const { storage: cloudinaryStorage } = require('../config/cloudinary');
+
+// Multer Storage Configuration (Local Fallback)
+const localStorage = multer.diskStorage({
     destination(req, file, cb) {
         cb(null, 'uploads/');
     },
@@ -23,27 +29,31 @@ const storage = multer.diskStorage({
     },
 });
 
+function checkFileType(file, cb) {
+    const filetypes = /apk|ipa|ios|android|zip/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (extname) {
+        return cb(null, true);
+    } else {
+        cb('Error: Invalid App File Format! (Allowing .apk, .ipa, .zip)');
+    }
+}
+
+// Use Cloudinary for primary storage
 const upload = multer({
-    storage,
+    storage: cloudinaryStorage,
+    limits: { fileSize: 500 * 1024 * 1024 }, // 500 MB Limit
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     },
 });
 
-function checkFileType(file, cb) {
-    const filetypes = /apk|android-package-archive/; // Simplified check
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    // const mimetype = filetypes.test(file.mimetype); // mimetype varies, rely on ext for now
-
-    if (extname) {
-        return cb(null, true);
-    } else {
-        cb('Error: APK Files Only!');
-    }
-}
-
-router.route('/upload').post(protect, admin, upload.single('apk'), uploadAPK);
-router.route('/latest').get(protect, getLatestAPK);
-router.route('/all').get(protect, admin, getAllAPKs);
+router.post('/upload', protect, admin, upload.single('file'), uploadAPK);
+router.get('/all', protect, admin, getAllAPKs);
+router.get('/latest/:platform', getLatestAPK);
+router.get('/history/:platform', getAppHistory);
+router.put('/:id/latest', protect, admin, setLatestAPK);
+router.delete('/:id', protect, admin, deleteAPK);
 
 module.exports = router;

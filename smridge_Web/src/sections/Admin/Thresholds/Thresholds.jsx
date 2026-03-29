@@ -1,57 +1,139 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Save, AlertCircle, RefreshCw } from 'lucide-react';
 import styles from './Thresholds.module.css';
 import api from '../../../services/api';
 import socket from '../../../services/socket';
 
-const SliderControl = ({ label, value, min, max, unit, onChange, color }) => {
+const RangeControl = ({ label, minVal, maxVal, min, max, unit, onChangeMin, onChangeMax, color }) => {
     return (
         <div className={styles.controlGroup}>
             <div className={styles.controlHeader}>
                 <label>{label}</label>
-                <span style={{ color }}>{value}{unit}</span>
+                <div className={styles.valueRange}>
+                    <span style={{ color }}>{minVal}{unit}</span>
+                    <span className={styles.separator}>—</span>
+                    <span style={{ color }}>{maxVal}{unit}</span>
+                </div>
             </div>
-            <div className={styles.sliderContainer}>
-                <input
-                    type="range"
-                    min={min}
-                    max={max}
-                    step="0.1"
-                    value={value}
-                    onChange={(e) => onChange(parseFloat(e.target.value))}
-                    className={styles.slider}
-                    style={{ '--thumb-color': color }}
-                />
-                <div
-                    className={styles.progressBar}
-                    style={{ width: `${((value - min) / (max - min)) * 100}%`, backgroundColor: color }}
-                />
+            <div className={styles.rangeContainer}>
+                <div className={styles.sliderWrapper}>
+                    <input
+                        type="range"
+                        min={min}
+                        max={max}
+                        step="0.1"
+                        value={minVal}
+                        onChange={(e) => {
+                            const val = Math.min(parseFloat(e.target.value), maxVal - 0.5);
+                            onChangeMin(val);
+                        }}
+                        className={`${styles.slider} ${styles.sliderMin}`}
+                        style={{ '--thumb-color': color }}
+                    />
+                    <input
+                        type="range"
+                        min={min}
+                        max={max}
+                        step="0.1"
+                        value={maxVal}
+                        onChange={(e) => {
+                            const val = Math.max(parseFloat(e.target.value), minVal + 0.5);
+                            onChangeMax(val);
+                        }}
+                        className={`${styles.slider} ${styles.sliderMax}`}
+                        style={{ '--thumb-color': color }}
+                    />
+                    <div
+                        className={styles.rangeTrack}
+                        style={{
+                            left: `${((minVal - min) / (max - min)) * 100}%`,
+                            right: `${100 - ((maxVal - min) / (max - min)) * 100}%`,
+                            backgroundColor: color
+                        }}
+                    />
+                </div>
+            </div>
+            <div className={styles.rangeGuides}>
+                <span>Min: {min}{unit}</span>
+                <span>Max: {max}{unit}</span>
+            </div>
+
+            <div className={styles.manualInputs}>
+                <div className={styles.inputBox}>
+                    <span className={styles.inputLabel}>Min Bound</span>
+                    <input
+                        type="number"
+                        step="0.1"
+                        value={minVal}
+                        onChange={(e) => {
+                            const val = Math.min(parseFloat(e.target.value) || min, maxVal - 0.1);
+                            onChangeMin(val);
+                        }}
+                        className={styles.numInput}
+                    />
+                </div>
+                <div className={styles.inputBox}>
+                    <span className={styles.inputLabel}>Max Bound</span>
+                    <input
+                        type="number"
+                        step="0.1"
+                        value={maxVal}
+                        onChange={(e) => {
+                            const val = Math.max(parseFloat(e.target.value) || max, minVal + 0.1);
+                            onChangeMax(val);
+                        }}
+                        className={styles.numInput}
+                    />
+                </div>
             </div>
         </div>
     );
 };
 
+import { useHistory } from '../../../hooks/useHistory';
+
 const Thresholds = () => {
-    const [settings, setSettings] = useState({
-        tempMin: 1.0,
-        tempMax: 5.0,
-        humidityTarget: 85,
-        gasWarning: 0.5,
+    const [settings, setSettings, undo, redo, canUndo, canRedo] = useHistory({
+        tempMin: 0,
+        tempMax: 10.0,
+        humMin: 40,
+        humMax: 95,
+        gasMin: 0.1,
+        gasMax: 1.0,
     });
 
     const [isSaving, setIsSaving] = useState(false);
     const [showSaved, setShowSaved] = useState(false);
 
-    React.useEffect(() => {
+    // Keyboard shortcuts for Undo/Redo
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z') {
+                    e.preventDefault();
+                    undo();
+                } else if (e.key === 'y') {
+                    e.preventDefault();
+                    redo();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [undo, redo]);
+
+    useEffect(() => {
         const fetchThresholds = async () => {
             try {
                 const { data } = await api.get('/threshold');
                 setSettings({
-                    tempMin: 1.0,
-                    tempMax: data.temperatureLimit || 5.0,
-                    humidityTarget: data.humidityLimit || 85,
-                    gasWarning: data.gasLimit || 0.5,
+                    tempMin: data.temperatureLimitMin || 0,
+                    tempMax: data.temperatureLimitMax || 10,
+                    humMin: data.humidityLimitMin || 40,
+                    humMax: data.humidityLimitMax || 95,
+                    gasMin: data.gasLimitMin || 0.1,
+                    gasMax: data.gasLimitMax || 1.0,
                 });
             } catch (error) {
                 console.error("Failed to fetch thresholds");
@@ -60,12 +142,14 @@ const Thresholds = () => {
         fetchThresholds();
 
         socket.on('thresholdUpdated', (data) => {
-            setSettings(prev => ({
-                ...prev,
-                tempMax: data.temperatureLimit,
-                humidityTarget: data.humidityLimit,
-                gasWarning: data.gasLimit,
-            }));
+            setSettings({
+                tempMin: data.temperatureLimitMin,
+                tempMax: data.temperatureLimitMax,
+                humMin: data.humidityLimitMin,
+                humMax: data.humidityLimitMax,
+                gasMin: data.gasLimitMin,
+                gasMax: data.gasLimitMax,
+            });
         });
 
         return () => socket.off('thresholdUpdated');
@@ -75,9 +159,12 @@ const Thresholds = () => {
         setIsSaving(true);
         try {
             await api.put('/threshold/update', {
-                temperatureLimit: settings.tempMax,
-                humidityLimit: settings.humidityTarget,
-                gasLimit: settings.gasWarning,
+                temperatureLimitMin: settings.tempMin,
+                temperatureLimitMax: settings.tempMax,
+                humidityLimitMin: settings.humMin,
+                humidityLimitMax: settings.humMax,
+                gasLimitMin: settings.gasMin,
+                gasLimitMax: settings.gasMax,
                 freshnessWarningLevel: 50
             });
             setShowSaved(true);
@@ -107,36 +194,34 @@ const Thresholds = () => {
                         Environmental Controls
                     </div>
 
-                    <SliderControl
-                        label="Min Temperature"
-                        value={settings.tempMin}
-                        min={-2} max={10} unit="°C"
+                    <RangeControl
+                        label="Temperature Range"
+                        minVal={settings.tempMin}
+                        maxVal={settings.tempMax}
+                        min={-10} max={25} unit="°C"
                         color="#00f0ff"
-                        onChange={(v) => setSettings({ ...settings, tempMin: v })}
+                        onChangeMin={(v) => setSettings({ ...settings, tempMin: v })}
+                        onChangeMax={(v) => setSettings({ ...settings, tempMax: v })}
                     />
 
-                    <SliderControl
-                        label="Max Temperature"
-                        value={settings.tempMax}
-                        min={0} max={15} unit="°C"
-                        color="#ff0055"
-                        onChange={(v) => setSettings({ ...settings, tempMax: v })}
-                    />
-
-                    <SliderControl
-                        label="Target Humidity"
-                        value={settings.humidityTarget}
-                        min={40} max={95} unit="%"
+                    <RangeControl
+                        label="Humidity Range"
+                        minVal={settings.humMin}
+                        maxVal={settings.humMax}
+                        min={0} max={100} unit="%"
                         color="#00ff9d"
-                        onChange={(v) => setSettings({ ...settings, humidityTarget: v })}
+                        onChangeMin={(v) => setSettings({ ...settings, humMin: v })}
+                        onChangeMax={(v) => setSettings({ ...settings, humMax: v })}
                     />
 
-                    <SliderControl
-                        label="Gas Warning Level"
-                        value={settings.gasWarning}
-                        min={0.1} max={2.0} unit=" PPM"
+                    <RangeControl
+                        label="Gas Sensing Range"
+                        minVal={settings.gasMin}
+                        maxVal={settings.gasMax}
+                        min={0} max={5} unit=" PPM"
                         color="#ffaa00"
-                        onChange={(v) => setSettings({ ...settings, gasWarning: v })}
+                        onChangeMin={(v) => setSettings({ ...settings, gasMin: v })}
+                        onChangeMax={(v) => setSettings({ ...settings, gasMax: v })}
                     />
 
                     <div className={styles.actions}>

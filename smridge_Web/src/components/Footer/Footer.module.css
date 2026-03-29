@@ -1,0 +1,166 @@
+.footer {
+    padding: 8rem 2rem 2rem;
+    background: #05050a;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    border-top: 1px solid rgba(0, 240, 255, 0.1);
+}
+
+.footerGlow {
+    position: absolute;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 300px;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
+    filter: blur(50px);
+    pointer-events: none;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.contentGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 4rem;
+    margin-bottom: 5rem;
+}
+
+.logoText {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.3rem;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.tagline {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 2.5rem;
+    font-family: 'Roboto', sans-serif;
+}
+
+.contentGrid h3 {
+    font-size: 1.2rem;
+    letter-spacing: 0.15rem;
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+.linksColumn ul {
+    list-style: none;
+    padding: 0;
+}
+
+.linksColumn li {
+    margin-bottom: 1.2rem;
+}
+
+.linksColumn a {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.contactColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contactItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.newsletterColumn p {
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    font-family: 'Roboto', sans-serif;
+}
+
+.inputGroup {
+    display: flex;
+    gap: 0.8rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.5rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inputGroup input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 0.8rem 1rem;
+    color: #fff;
+    outline: none;
+    font-family: 'Roboto', sans-serif;
+}
+
+.inputGroup button {
+    padding: 0.8rem 1.8rem;
+    background: var(--color-primary);
+    color: #000;
+    border-radius: 10px;
+    font-family: 'Anta', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.bottomBar {
+    padding-top: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}
+
+.bottomLinks {
+    display: flex;
+    gap: 2rem;
+}
+
+.bottomLinks a {
+    color: inherit;
+    transition: color 0.3s;
+}
+
+.bottomLinks a:hover {
+    color: var(--color-primary);
+}
+
+@media (max-width: 1200px) {
+    .contentGrid {
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .contentGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .bottomBar {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+}

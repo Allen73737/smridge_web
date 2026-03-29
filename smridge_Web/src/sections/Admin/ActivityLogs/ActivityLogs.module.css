@@ -8,10 +8,23 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+@media (max-width: 600px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.header p {
+    font-family: 'Roboto', sans-serif;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .header h1 {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Anta', sans-serif;
     color: #fff;
     font-size: 1.8rem;
 }
@@ -19,7 +32,8 @@
 .controls {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 15px;
+    flex-wrap: wrap;
     background: rgba(255, 255, 255, 0.05);
     padding: 0.5rem 1rem;
     border-radius: 8px;
@@ -30,11 +44,36 @@
     color: rgba(255, 255, 255, 0.6);
 }
 
+.refreshBtn {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    transition: transform 0.3s ease;
+}
+
+.refreshBtn:hover {
+    transform: rotate(180deg);
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .filterSelect {
     background: transparent;
     border: none;
     color: #fff;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
     outline: none;
     cursor: pointer;
 }
@@ -88,7 +127,7 @@
 
 .actionTitle {
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 .time {
@@ -105,6 +144,13 @@
     margin-bottom: 0.5rem;
 }
 
+table {
+    width: 100%;
+    border-collapse: collapse;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Roboto', sans-serif;
+}
+
 .user {
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.4);
@@ -116,4 +162,24 @@
     color: rgba(255, 255, 255, 0.3);
     padding: 3rem;
     font-style: italic;
+}
+@media (max-width: 600px) {
+    .logItem {
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .logHeader {
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .details {
+        font-size: 0.85rem;
+    }
+
+    .controls {
+        width: 100%;
+        justify-content: space-between;
+    }
 }
