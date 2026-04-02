@@ -126,7 +126,14 @@ const Team = () => {
   const [direction, setDirection] = useState(0); // 1 for right, -1 for left
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Scroll animations
   const { scrollYProgress } = useScroll({
@@ -306,198 +313,198 @@ const Team = () => {
 
       <div className={styles.gridContainer}>
 
-        {/* ── ROW 1: HEADER ── */}
-        <motion.div 
-          className={`${styles.cell} ${styles.headerLeft}`}
-          variants={staggerVariants}
-        >
-          SMRIDGE / FOUNDERS
-        </motion.div>
-        <motion.div 
-          className={`${styles.cell} ${styles.headerCenter}`}
-          variants={staggerVariants}
-        >
-          {`${displayNum} / ${String(members.length).padStart(2, '0')}`}
-        </motion.div>
-        <motion.div 
-          className={`${styles.cell} ${styles.headerRight}`}
-          variants={staggerVariants}
-        >
-          SMRIDGE.
-        </motion.div>
+      {/* ── ROW 1: HEADER ── */}
+      <motion.div 
+        className={`${styles.cell} ${styles.headerLeft}`}
+        variants={staggerVariants}
+      >
+        SMRIDGE / FOUNDERS
+      </motion.div>
+      <motion.div 
+        className={`${styles.cell} ${styles.headerCenter}`}
+        variants={staggerVariants}
+      >
+        {`${displayNum} / ${String(members.length).padStart(2, '0')}`}
+      </motion.div>
+      <motion.div 
+        className={`${styles.cell} ${styles.headerRight}`}
+        variants={staggerVariants}
+      >
+        SMRIDGE.
+      </motion.div>
 
-        {/* ── ROW 2+3: LEFT — Title + Member Info ── */}
-        <motion.div 
-          className={`${styles.cell} ${styles.mainTitleArea}`}
-          variants={staggerVariants}
-        >
-          <div className={styles.titleBlock}>
-            <h2 className={styles.mainTitle}>
-              MEET<br />THE<br />FOUNDERS
-            </h2>
+      {/* ── ROW 2+3: LEFT — Title + Member Info ── */}
+      <motion.div 
+        className={`${styles.cell} ${styles.mainTitleArea}`}
+        variants={staggerVariants}
+      >
+        <div className={styles.titleBlock}>
+          <h2 className={styles.mainTitle}>
+            MEET<br />THE<br />FOUNDERS
+          </h2>
 
-            <div className={styles.missionText}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`mission-${currentIdx}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <TypewriterText text="THE ONES WHO ARE SHAPING THE FUTURE" delay={0.2} />
-                </motion.div>
-              </AnimatePresence>
-            </div>
+          <div className={styles.missionText}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`mission-${currentIdx}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <TypewriterText text="THE ONES WHO ARE SHAPING THE FUTURE" delay={0.2} />
+              </motion.div>
+            </AnimatePresence>
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
 
-        {/* ── ROW 2+3: CENTER — Photo ── */}
-        <motion.div 
-          className={`${styles.cell} ${styles.imageArea}`}
-          variants={staggerVariants}
-        >
-          <AnimatePresence mode="popLayout" custom={direction}>
-            <motion.div
-              key={currentIdx}
-              className={styles.imageFrame}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              whileHover={{ scale: 1.02, rotateY: 2, rotateX: 2 }}
-            >
-              <img
-                src={m.photo}
-                alt={m.name}
-                className={styles.founderImage}
-              />
-              <div className={styles.imageOverlay} />
-              
-              {/* Scanning line animation */}
-              <motion.div 
-                className={styles.scanningLine}
-                initial={{ top: '-10%' }}
-                animate={{ top: '110%' }}
-                transition={{ 
-                  duration: 2.5, 
-                  repeat: Infinity, 
-                  ease: "linear",
-                  delay: 0.3 
-                }}
-              />
-
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
-
-        {/* ── ROW 2+3: RIGHT — Large Name Display ── */}
-        <motion.div 
-          className={`${styles.cell} ${styles.rightContentArea}`}
-          variants={staggerVariants}
-        >
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={`r-info-${currentIdx}`}
-              className={styles.rightContentInner}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-            >
-              <div className={styles.indexNumber}>{displayNum}.</div>
-              <div className={styles.indexSeparator} />
-              {(() => {
-                const TARGET_DURATION = 1500; // Animation duration target in ms
-                const nameSpeed = Math.max(2, Math.floor(TARGET_DURATION / m.name.length));
-                
-                return (
-                  <>
-                    <motion.div 
-                      className={styles.verticalTitle}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      <TypewriterText text={m.name.toUpperCase()} delay={0.1} speed={nameSpeed} />
-                    </motion.div>
-                    <motion.div 
-                      className={styles.rightBio}
-                      initial={{ opacity: 0, x: 20, filter: 'blur(10px)' }}
-                      animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-                      transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                    >
-                      {m.bio}
-                    </motion.div>
-                  </>
-                );
-              })()}
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
-
-        {/* ── ROW 4: BOTTOM NAV ── */}
-        <motion.div 
-          className={`${styles.cell} ${styles.bottomLeftSocial}`}
-          variants={staggerVariants}
-        >
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={`social-l-${currentIdx}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className={styles.socialInner}
-            >
-              <span className={styles.socialLabel}>GMAIL</span>
-              <span className={styles.socialValue}>
-                <TypewriterText text={m.gmail} delay={0.6} />
-              </span>
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
-
-        <motion.div 
-          className={`${styles.cell} ${styles.bottomCenter}`}
-          variants={staggerVariants}
-        >
-          <button className={styles.navBtn} onClick={goPrev}>
-            PREVIOUS
-          </button>
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${progress}%` }}
+      {/* ── ROW 2+3: CENTER — Photo ── */}
+      <motion.div 
+        className={`${styles.cell} ${styles.imageArea}`}
+        variants={staggerVariants}
+      >
+        <AnimatePresence mode="popLayout" custom={direction}>
+          <motion.div
+            key={currentIdx}
+            className={styles.imageFrame}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            whileHover={{ scale: 1.02, rotateY: 2, rotateX: 2 }}
+          >
+            <img
+              src={m.photo}
+              alt={m.name}
+              className={styles.founderImage}
             />
-          </div>
-          <button className={styles.navBtn} onClick={goNext}>
-            NEXT
-          </button>
-        </motion.div>
-
-        <motion.div 
-          className={`${styles.cell} ${styles.bottomRightSocial}`}
-          variants={staggerVariants}
-        >
-          <AnimatePresence mode="wait">
+            <div className={styles.imageOverlay} />
+            
+            {/* Scanning line animation */}
             <motion.div 
-              key={`social-r-${currentIdx}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className={styles.socialInnerR}
-            >
-              <span className={styles.socialLabel}>INSTAGRAM</span>
-              <span className={styles.socialValue}>
-                <TypewriterText text={m.instagram} delay={0.7} />
-              </span>
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
-      </div>
+              className={styles.scanningLine}
+              initial={{ top: '-10%' }}
+              animate={{ top: '110%' }}
+              transition={{ 
+                duration: 2.5, 
+                repeat: Infinity, 
+                ease: "linear",
+                delay: 0.3 
+              }}
+            />
+
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+
+      {/* ── ROW 2+3: RIGHT — Large Name Display ── */}
+      <motion.div 
+        className={`${styles.cell} ${styles.rightContentArea}`}
+        variants={staggerVariants}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={`r-info-${currentIdx}`}
+            className={styles.rightContentInner}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
+            <div className={styles.indexNumber}>{displayNum}.</div>
+            <div className={styles.indexSeparator} />
+            {(() => {
+              const TARGET_DURATION = 1500; // Animation duration target in ms
+              const nameSpeed = Math.max(2, Math.floor(TARGET_DURATION / m.name.length));
+              
+              return (
+                <>
+                  <motion.div 
+                    className={styles.verticalTitle}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <TypewriterText text={m.name.toUpperCase()} delay={0.1} speed={nameSpeed} />
+                  </motion.div>
+                  <motion.div 
+                    className={styles.rightBio}
+                    initial={{ opacity: 0, x: 20, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                  >
+                    {m.bio}
+                  </motion.div>
+                </>
+              );
+            })()}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+
+      {/* ── ROW 4: BOTTOM NAV ── */}
+      <motion.div 
+        className={`${styles.cell} ${styles.bottomLeftSocial}`}
+        variants={staggerVariants}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={`social-l-${currentIdx}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className={styles.socialInner}
+          >
+            <span className={styles.socialLabel}>GMAIL</span>
+            <span className={styles.socialValue}>
+              <TypewriterText text={m.gmail} delay={0.6} />
+            </span>
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+
+      <motion.div 
+        className={`${styles.cell} ${styles.bottomCenter}`}
+        variants={staggerVariants}
+      >
+        <button className={styles.navBtn} onClick={goPrev}>
+          PREVIOUS
+        </button>
+        <div className={styles.progressBar}>
+          <div
+            className={styles.progressFill}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <button className={styles.navBtn} onClick={goNext}>
+          NEXT
+        </button>
+      </motion.div>
+
+      <motion.div 
+        className={`${styles.cell} ${styles.bottomRightSocial}`}
+        variants={staggerVariants}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={`social-r-${currentIdx}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className={styles.socialInnerR}
+          >
+            <span className={styles.socialLabel}>INSTAGRAM</span>
+            <span className={styles.socialValue}>
+              <TypewriterText text={m.instagram} delay={0.7} />
+            </span>
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+    </div>
     </motion.section>
   );
 };

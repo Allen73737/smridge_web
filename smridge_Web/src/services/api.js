@@ -1,22 +1,17 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api', // Update for production
+    baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api', // Updated to match 127.0.0.1 host
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-let authToken = null;
-
-export const setAuthToken = (token) => {
-    authToken = token;
-};
-
 api.interceptors.request.use(
     (config) => {
-        if (authToken) {
-            config.headers.Authorization = `Bearer ${authToken}`;
+        const token = localStorage.getItem('smridge_token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },

@@ -21,7 +21,8 @@ const registerUser = async (req, res) => {
     }
 
     // Check if user exists
-    const userExists = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    const userExists = await User.findOne({ email: normalizedEmail });
 
     if (userExists) {
         res.status(400);
@@ -31,7 +32,7 @@ const registerUser = async (req, res) => {
     // Create user
     const user = await User.create({
         name,
-        email,
+        email: normalizedEmail,
         password,
     });
 
@@ -43,6 +44,9 @@ const registerUser = async (req, res) => {
             role: 'user',
             details: 'User registered',
         });
+
+        // Populate user info for real-time display
+        await log.populate('userId', 'name email');
 
         // Emit socket events
         const io = req.app.get('socketio');
@@ -70,10 +74,11 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log(`Attempting login for: ${email}`);
+        const normalizedEmail = email.trim().toLowerCase();
+        console.log(`Attempting login for: ${normalizedEmail}`);
 
         // Check for user email
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         console.log('User found:', user ? 'Yes' : 'No');
 
         if (user && (await user.matchPassword(password))) {
@@ -98,6 +103,9 @@ const loginUser = async (req, res) => {
                     role: user.role,
                     details: 'User logged in',
                 });
+                
+                // Populate user info for real-time display
+                await log.populate('userId', 'name email');
                 
                 const io = req.app.get('socketio');
                 if (io) io.emit('logAdded', log);

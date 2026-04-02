@@ -42,12 +42,17 @@ const uploadAPK = async (req, res) => {
 
         if (apk) {
             console.log('Creating Activity Log for user:', req.user._id);
-            await ActivityLog.create({
+            const log = await ActivityLog.create({
                 userId: req.user._id,
                 action: 'DEPLOY_BUILD',
                 role: 'admin',
                 details: `Deployed ${platform} build v${version}${isLink === 'true' ? ' (Link)' : ''}`
             });
+
+            // Populate user info and emit socket
+            await log.populate('userId', 'name email');
+            const io = req.app.get('socketio');
+            if (io) io.emit('logAdded', log);
 
             res.status(201).json(apk);
         } else {
@@ -113,12 +118,17 @@ const setLatestAPK = async (req, res) => {
         await apk.save();
 
         // Log action
-        await ActivityLog.create({
+        const log = await ActivityLog.create({
             userId: req.user._id,
             action: 'UPDATE_BUILD',
             role: 'admin',
             details: `Set ${apk.platform} build v${apk.version} as latest`
         });
+
+        // Populate user info and emit socket
+        await log.populate('userId', 'name email');
+        const io = req.app.get('socketio');
+        if (io) io.emit('logAdded', log);
 
         res.json(apk);
     } catch (error) {
@@ -136,12 +146,17 @@ const deleteAPK = async (req, res) => {
             await APK.deleteOne({ _id: req.params.id });
 
             // Audit Log
-            await ActivityLog.create({
+            const log = await ActivityLog.create({
                 userId: req.user._id,
                 action: 'DELETE_BUILD',
                 role: 'admin',
                 details: `Removed ${apk.platform} version ${apk.version} from ecosystem`
             });
+
+            // Populate user info and emit socket
+            await log.populate('userId', 'name email');
+            const io = req.app.get('socketio');
+            if (io) io.emit('logAdded', log);
 
             res.json({ message: 'Build removed from ecosystem' });
         } else {

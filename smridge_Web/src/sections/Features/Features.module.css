@@ -122,20 +122,80 @@
     }
 
     .header {
-        height: 30vh;
-        position: relative;
+        height: 40vh;
+        position: sticky;
+        top: 0;
     }
 
     .cardContainer {
-        height: auto;
-        padding: 2rem 0;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        padding: 1rem;
     }
 
     .card {
-        width: 95%;
+        width: 90vw;
+        max-width: 600px;
         height: auto;
         min-height: 400px;
-        border-radius: 24px;
+        border-radius: 28px;
+    }
+
+    .cardBody {
+        padding: 2.2rem;
+    }
+
+    .cardBody h3 {
+        font-size: clamp(1.8rem, 5vw, 2.8rem);
+    }
+
+    .cardBody p {
+        font-size: 1.05rem;
+        margin-bottom: 1.8rem;
+    }
+
+    .mockupPlaceholder {
+        min-height: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .featuresSection {
+        padding-bottom: 4rem;
+    }
+
+    .header {
+        height: 35vh;
+        padding: 2rem 1rem;
+        position: sticky;
+        top: 0;
+    }
+
+    .header h2 {
+        font-size: 1.8rem;
+    }
+
+    .header p {
+        font-size: 0.9rem;
+        padding: 0 1rem;
+        opacity: 0.8;
+    }
+
+    .cardContainer {
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        padding: 0.8rem;
+    }
+
+    .card {
+        width: 94vw;
+        max-width: 100%;
+        height: auto;
+        min-height: 340px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
     }
 
     .cardBody {
@@ -143,15 +203,26 @@
     }
 
     .cardBody h3 {
-        font-size: clamp(1.8rem, 6vw, 2.5rem);
+        font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+        margin-bottom: 1rem;
+        letter-spacing: -0.01em;
+    }
+
+    .indexNumber {
+        font-size: 1rem;
+        opacity: 0.2;
     }
 
     .cardBody p {
-        font-size: 1rem;
-        margin-bottom: 1.5rem;
+        font-size: 0.88rem;
+        margin-bottom: 1.2rem;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.7);
     }
 
     .mockupPlaceholder {
-        min-height: 250px;
+        min-height: 160px;
+        border-radius: 12px;
     }
 }
+

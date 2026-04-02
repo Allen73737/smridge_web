@@ -1,19 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
 import { Sparkles, Brain, Zap, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import facts from '../../data/aiFacts.json';
 import styles from './Insights.module.css';
 
 const AnimatedText = ({ text }) => {
-    const letters = Array.from(text);
+    const words = text.split(" ");
+    
     const container = {
         hidden: { opacity: 0 },
         visible: (i = 1) => ({
             opacity: 1,
-            transition: { staggerChildren: 0.03, delayChildren: 0.04 * i },
+            transition: { staggerChildren: 0.12, delayChildren: 0.04 * i },
         }),
     };
-
+ 
     const child = {
         visible: {
             opacity: 1,
@@ -34,17 +36,30 @@ const AnimatedText = ({ text }) => {
             },
         },
     };
-
+ 
     return (
         <motion.div
-            style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
+            style={{ 
+                display: "flex", 
+                flexWrap: "wrap", 
+                justifyContent: "center",
+                columnGap: "0.5rem",
+                rowGap: "0.2rem"
+            }}
             variants={container}
             initial="hidden"
             animate="visible"
         >
-            {letters.map((letter, index) => (
-                <motion.span variants={child} key={index} style={{ marginRight: letter === " " ? "0.5rem" : "0" }}>
-                    {letter}
+            {words.map((word, index) => (
+                <motion.span 
+                    variants={child} 
+                    key={index} 
+                    style={{ 
+                        display: "inline-block",
+                        whiteSpace: "nowrap"
+                    }}
+                >
+                    {word}
                 </motion.span>
             ))}
         </motion.div>
@@ -157,6 +172,19 @@ const Insights = () => {
                             animate="center"
                             exit="exit"
                             className={styles.insightCard}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={0.3}
+                            onDragEnd={(e, { offset, velocity }) => {
+                                const swipe = Math.abs(offset.x) * velocity.x;
+                                if (swipe < -5000) {
+                                    handleNext();
+                                    setIsAutoPlaying(false);
+                                } else if (swipe > 5000) {
+                                    handlePrev();
+                                    setIsAutoPlaying(false);
+                                }
+                            }}
                         >
                             <div className={styles.cardGlow} />
                             <motion.div 
@@ -192,3 +220,4 @@ const Insights = () => {
 };
 
 export default Insights;
+

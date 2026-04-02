@@ -27,12 +27,39 @@
 
 @media (max-width: 768px) {
     .sensorSection {
-        padding: 4rem 1.5rem;
+        padding: 4rem 1.2rem;
     }
     .header {
-        margin-bottom: 3rem;
+        margin-bottom: 2.5rem;
+    }
+    .card h3 {
+        font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+    }
+    .card {
+        padding: 2rem 1.25rem;
+        border-radius: 16px;
+    }
+    .iconWrapper {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .expandedCard {
+        padding: 2rem 1.25rem;
+        border-radius: 16px;
+        max-width: calc(100vw - 2.5rem);
+    }
+    .expandedDetails {
+        font-size: 0.95rem;
+    }
+    .overlay {
+        padding: 1rem;
+    }
+    .closeButton {
+        top: 1rem;
+        right: 1rem;
     }
 }
+
 
 .grid {
     display: grid;

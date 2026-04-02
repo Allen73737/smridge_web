@@ -46,39 +46,77 @@
 }
 
 .statCard {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    border: 1px solid;
-    border-radius: 16px;
-    padding: 1.5rem;
+    background: rgba(15, 20, 35, 0.4);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 1.8rem;
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.statCard:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(20, 25, 45, 0.6);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Card Accent Light */
+.statCard::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle at top right, var(--accent-color, rgba(0, 240, 255, 0.15)), transparent 70%);
+    pointer-events: none;
 }
 
 .iconWrapper {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    z-index: 1;
+}
+
+.iconWrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0.12;
+    border-radius: inherit;
+    filter: blur(10px);
 }
 
 .statInfo h3 {
-    font-family: 'Roboto', sans-serif;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 0.3rem;
+    font-family: 'Anta', sans-serif;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
 }
 
 .value {
     font-family: 'Anta', sans-serif;
-    font-size: 2rem;
+    font-size: 2.2rem;
     color: #fff;
     font-weight: 700;
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 .miniGraph {
@@ -183,5 +221,23 @@
 @media (max-width: 768px) {
     .chartsRow {
         grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .chartCard {
+        height: 280px;
+        padding: 1.25rem;
+    }
+
+    .header h1 {
+        font-size: 1.6rem;
+    }
+
+    .header p {
+        font-size: 0.9rem;
+    }
+
+    .value {
+        font-size: 1.8rem;
     }
 }

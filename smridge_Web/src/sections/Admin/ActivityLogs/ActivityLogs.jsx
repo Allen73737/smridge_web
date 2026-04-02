@@ -93,12 +93,13 @@ const ActivityLogs = () => {
         // Category Filter
         let categoryMatch = true;
         if (filter === 'auth') categoryMatch = ['LOGIN', 'REGISTER'].includes(log.action);
-        else if (filter === 'admin') categoryMatch = ['DELETE_USER', 'BLOCK_USER', 'UPDATE_ROLE', 'UPDATE_THRESHOLD', 'UPLOAD_APK'].includes(log.action);
-        else if (filter === 'inventory') categoryMatch = ['ADD_ITEM', 'UPDATE_ITEM', 'DELETE_ITEM'].includes(log.action);
-        else if (filter === 'alerts') categoryMatch = ['SPOILAGE_ALERT', 'TEMP_ALERT'].includes(log.action);
+        else if (filter === 'admin') categoryMatch = ['DELETE_USER', 'BLOCK_USER', 'UNBLOCK_USER', 'UPDATE_ROLE', 'UPDATE_THRESHOLD', 'UPLOAD_APK', 'UPDATE_MEMBER', 'DEPLOY_BUILD', 'UPDATE_BUILD', 'DELETE_BUILD'].includes(log.action);
+        else if (filter === 'inventory') categoryMatch = ['ADD_ITEM', 'UPDATE_ITEM', 'DELETE_ITEM', 'REGISTER_DEVICE'].includes(log.action);
+        else if (filter === 'alerts') categoryMatch = ['SPOILAGE_ALERT', 'TEMP_ALERT', 'GAS_ALERT'].includes(log.action);
         else if (filter === 'user_only') {
             const isSmridge = log.userId?.name?.toLowerCase().includes('smridge');
-            categoryMatch = log.role === 'user' && !isSmridge;
+            // User actions are those with role 'user' OR alert actions (which are also 'user' role now)
+            categoryMatch = (log.role === 'user' || ['SPOILAGE_ALERT', 'TEMP_ALERT', 'GAS_ALERT'].includes(log.action)) && !isSmridge;
         }
 
         // User Filter
@@ -112,9 +113,10 @@ const ActivityLogs = () => {
 
     const getLogType = (action) => {
         if (['LOGIN', 'REGISTER'].includes(action)) return 'auth';
-        if (['ADD_ITEM', 'UPDATE_ITEM', 'DELETE_ITEM'].includes(action)) return 'inventory';
-        if (['SPOILAGE_ALERT', 'TEMP_ALERT'].includes(action)) return 'alert';
-        return 'admin';
+        if (['ADD_ITEM', 'UPDATE_ITEM', 'DELETE_ITEM', 'REGISTER_DEVICE'].includes(action)) return 'inventory';
+        if (['SPOILAGE_ALERT', 'TEMP_ALERT', 'GAS_ALERT'].includes(action)) return 'alert';
+        if (['DELETE_USER', 'BLOCK_USER', 'UNBLOCK_USER', 'UPDATE_ROLE', 'UPDATE_MEMBER'].includes(action)) return 'admin';
+        return 'system'; // For builds etc
     };
 
     return (

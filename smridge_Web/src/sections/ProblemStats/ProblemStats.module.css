@@ -11,12 +11,18 @@
     width: 100%;
     height: 100%;
     background-image:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    opacity: 0.5;
+        linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.3;
     z-index: 0;
     pointer-events: none;
+    animation: gridPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes gridPulse {
+    from { opacity: 0.15; transform: scale(1); }
+    to { opacity: 0.4; transform: scale(1.05); }
 }
 
 .contentWrapper {
@@ -42,23 +48,46 @@
 
 .statItem {
     position: relative;
+    padding: 2rem;
+}
+
+.statItem::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    animation: ringGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes ringGlow {
+    from { opacity: 0.3; scale: 0.8; }
+    to { opacity: 0.7; scale: 1.1; }
 }
 
 .statValue {
     font-family: 'Anta', sans-serif;
     font-size: 5rem;
-    font-weight: 700;
-    color: var(--color-secondary);
-    text-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+    font-weight: 900;
+    background: linear-gradient(135deg, #00f0ff 0%, #00ff9d 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.4));
     margin-bottom: 0.5rem;
 }
 
 .statLabel {
-    font-family: 'Roboto', sans-serif;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1rem;
+    font-family: 'Anta', sans-serif;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.15rem;
+    letter-spacing: 0.25rem;
 }
 
 .storyText {
@@ -99,26 +128,52 @@
 
 @media (max-width: 768px) {
     .statsSection {
-        padding: 5rem 1.5rem;
-    }
-
-    .header {
-        margin-bottom: 3rem;
+        padding: 5rem 1rem;
     }
 
     .statsGrid {
-        gap: 2rem;
+        grid-template-columns: 1fr 1fr 1fr; /* 3 columns for balanced row */
+        gap: 1rem;
+        margin-bottom: 3.5rem;
+    }
+
+    .statItem {
+        padding: 0.5rem;
     }
 
     .statValue {
-        font-size: clamp(3rem, 15vw, 4rem);
+        font-size: clamp(1.8rem, 8vw, 2.5rem); /* Scaled down for 3 columns */
+    }
+
+    .statLabel {
+        font-size: 0.65rem;
+        letter-spacing: 0.1rem;
     }
 
     .glassCard {
-        padding: 2rem 1.5rem;
-    }
-
-    .glassCard h3 {
-        font-size: 1.5rem;
+        padding: 2.5rem 1.5rem;
+        border-radius: 20px;
     }
 }
+
+@media (max-width: 480px) {
+    .statsGrid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.8rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .statValue {
+        font-size: clamp(1.4rem, 7vw, 1.8rem);
+    }
+
+    .statLabel {
+        font-size: 0.55rem;
+        letter-spacing: 0.05rem;
+    }
+
+    .glassCard {
+        padding: 1.5rem 1.1rem;
+    }
+}
+

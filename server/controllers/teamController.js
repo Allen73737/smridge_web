@@ -1,4 +1,5 @@
 const TeamMember = require('../models/Team');
+const ActivityLog = require('../models/ActivityLog');
 const fs = require('fs');
 const path = require('path');
 
@@ -45,6 +46,20 @@ const updateMember = async (req, res) => {
             }
 
             const updatedMember = await member.save();
+
+            // Log activity
+            const log = await ActivityLog.create({
+                userId: req.user._id,
+                action: 'UPDATE_MEMBER',
+                role: 'admin',
+                details: `Updated team member profile for ${member.name}`
+            });
+
+            // Populate user info and emit socket
+            await log.populate('userId', 'name email');
+            const io = req.app.get('socketio');
+            if (io) io.emit('logAdded', log);
+
             res.json(updatedMember);
         } else {
             res.status(404).json({ message: 'Member not found' });

@@ -199,11 +199,139 @@
 }
 
 @media (max-width: 1024px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+    
     .card {
         grid-template-columns: 1fr;
         height: auto;
+        min-height: 480px;
+        background: rgba(10, 10, 18, 0.8);
     }
+    
     .visualSection {
-        height: 250px;
+        height: 220px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 }
+
+/* ─── Premium Mobile HUD Styles ─── */
+.mobileHud {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #050812 0%, #0a1122 100%);
+    position: relative;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hudScanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(0, 240, 255, 0.02) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.hudHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: auto;
+    z-index: 3;
+}
+
+.hudLive {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Anta', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15rem;
+    color: #4df0ff;
+}
+
+.hudLiveDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00ff9d;
+    box-shadow: 0 0 10px #00ff9d;
+}
+
+.hudId {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.hudMainMetric {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    z-index: 3;
+}
+
+.hudValue {
+    font-family: 'Anta', sans-serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+}
+
+.hudUnit {
+    font-family: 'Anta', sans-serif;
+    font-size: 1.5rem;
+    color: #4df0ff;
+}
+
+.hudSubMetrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: auto;
+    z-index: 3;
+}
+
+.hudSubItem {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.75rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hudSubLabel {
+    font-family: 'Anta', sans-serif;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.1rem;
+}
+
+.hudSubValue {
+    font-family: 'Anta', sans-serif;
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.safeText { color: #00ff9d; }
+.alertText { color: #ff0055; text-shadow: 0 0 10px rgba(255, 0, 85, 0.4); }

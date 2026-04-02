@@ -7,6 +7,14 @@ import api from '../../../services/api';
 import socket from '../../../services/socket';
 
 const FridgeCard = ({ id, user, freshness, temp, gas, doorOpen, status, lastPulse, fullData }) => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
         <motion.div
             className={styles.card}
@@ -14,7 +22,40 @@ const FridgeCard = ({ id, user, freshness, temp, gas, doorOpen, status, lastPuls
             animate={{ opacity: 1, scale: 1 }}
         >
             <div className={styles.visualSection}>
-                <Fridge3D status={fullData} />
+                {isMobile ? (
+                    <div className={styles.mobileHud}>
+                        <div className={styles.hudScanline} />
+                        <div className={styles.hudHeader}>
+                            <div className={styles.hudLive}>
+                                <motion.div 
+                                    className={styles.hudLiveDot} 
+                                    animate={{ opacity: [1, 0.4, 1] }} 
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                />
+                                TELEMETRY
+                            </div>
+                            <div className={styles.hudId}>UNIT_{id.slice(-4)}</div>
+                        </div>
+                        <div className={styles.hudMainMetric}>
+                            <span className={styles.hudValue}>{temp}</span>
+                            <span className={styles.hudUnit}>°C</span>
+                        </div>
+                        <div className={styles.hudSubMetrics}>
+                            <div className={styles.hudSubItem}>
+                                <span className={styles.hudSubLabel}>GAS</span>
+                                <span className={styles.hudSubValue}>{gas}</span>
+                            </div>
+                            <div className={styles.hudSubItem}>
+                                <span className={styles.hudSubLabel}>DOOR</span>
+                                <span className={`${styles.hudSubValue} ${doorOpen ? styles.alertText : styles.safeText}`}>
+                                    {doorOpen ? 'OPEN' : 'SECURE'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <Fridge3D status={fullData} />
+                )}
             </div>
 
             <div className={styles.infoSection}>
@@ -25,28 +66,26 @@ const FridgeCard = ({ id, user, freshness, temp, gas, doorOpen, status, lastPuls
                             {status === 'online' ? '● Online' : '○ Offline'}
                         </span>
                     </div>
-                    <div className={styles.headerBadges}>
-                        <span className={`${styles.statusDot} ${doorOpen ? styles.warning : styles.good}`} />
-                        <span className={styles.unitId}>#{id.slice(-4)}</span>
-                    </div>
                 </div>
 
-                <div className={styles.metrics}>
-                    <div className={styles.metricRow}>
-                        <div className={styles.metricLabel}><Thermometer size={14} /> Temp</div>
-                        <div className={styles.metricValue}>{temp}°C</div>
-                    </div>
-                    <div className={styles.metricRow}>
-                        <div className={styles.metricLabel}><Wind size={14} /> Gas (PPM)</div>
-                        <div className={styles.metricValue}>{gas}</div>
-                    </div>
-                    <div className={styles.metricRow}>
-                        <div className={styles.metricLabel}><DoorOpen size={14} /> Door</div>
-                        <div className={`${styles.metricValue} ${doorOpen ? styles.alert : ''}`}>
-                            {doorOpen ? 'OPEN' : 'Closed'}
+                {!isMobile && (
+                    <div className={styles.metrics}>
+                        <div className={styles.metricRow}>
+                            <div className={styles.metricLabel}><Thermometer size={14} /> Temp</div>
+                            <div className={styles.metricValue}>{temp}°C</div>
+                        </div>
+                        <div className={styles.metricRow}>
+                            <div className={styles.metricLabel}><Wind size={14} /> Gas (PPM)</div>
+                            <div className={styles.metricValue}>{gas}</div>
+                        </div>
+                        <div className={styles.metricRow}>
+                            <div className={styles.metricLabel}><DoorOpen size={14} /> Door</div>
+                            <div className={`${styles.metricValue} ${doorOpen ? styles.alert : ''}`}>
+                                {doorOpen ? 'OPEN' : 'Closed'}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 <div className={styles.freshnessContainer}>
                     <div className={styles.freshnessLabel}>

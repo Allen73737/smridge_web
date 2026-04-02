@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import styles from './Navbar.module.css';
+import logo from '../../assets/smridge_logo.png';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -22,6 +23,8 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const menuItems = ['Vision', 'Technology', 'Features', 'Insights', 'App', 'Team'];
+
     return (
         <>
             <motion.nav
@@ -31,12 +34,13 @@ const Navbar = () => {
                 animate={{ y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
             >
-                <div className={styles.logo}>
+                <div className={styles.logoContainer}>
+                    <img src={logo} alt="SMRIDGE" className={styles.logoImage} />
                     <span className={styles.logoText}>SMRIDGE</span>
                 </div>
 
                 <div className={styles.desktopMenu}>
-                    {['Vision', 'Technology', 'Features', 'Insights', 'App', 'Team'].map((item) => (
+                    {menuItems.map((item) => (
                         <motion.a 
                             key={item} 
                             href={`#${item.toLowerCase()}`} 
@@ -61,8 +65,15 @@ const Navbar = () => {
                     </motion.div>
                 </div>
 
-                <div className={styles.mobileToggle} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                <div className={styles.mobileActions}>
+                    <motion.div 
+                        className={styles.mobileToggle} 
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        animate={{ rotate: isMenuOpen ? 180 : 0 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                    >
+                        <ChevronDown size={28} color="#00f0ff" />
+                    </motion.div>
                 </div>
 
                 <motion.div className={styles.progressBar} style={{ scaleX }} />
@@ -73,37 +84,41 @@ const Navbar = () => {
                 {isMenuOpen && (
                     <motion.div
                         className={styles.mobileMenu}
-                        style={{ position: 'fixed' }}
-                        initial={{ opacity: 0, x: '100%' }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: '100%' }}
-                        transition={{ type: "tween" }}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        <div className={styles.mobileLinks}>
-                            {['Vision', 'Technology', 'Features', 'Insights', 'App', 'Team', 'Admin'].map((item) => (
-                                item === "Admin" ? (
-                                    <Link
-                                        key={item}
-                                        to="/admin"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className={styles.mobileLink}
-                                    >
-                                        {item}
-                                    </Link>
-                                ) : (
-                                    <a
-                                        key={item}
-                                        href={`#${item.toLowerCase()}`}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            if (window.premiumScrollTo) window.premiumScrollTo(item.toLowerCase());
-                                            setIsMenuOpen(false);
-                                        }}
-                                        className={styles.mobileLink}
-                                    >
-                                        {item}
-                                    </a>
-                                )
+                        <div className={styles.mobileLinksGrid}>
+                            {[...menuItems, 'Admin'].map((item, index) => (
+                                <motion.div
+                                    key={item}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                >
+                                    {item === "Admin" ? (
+                                        <Link
+                                            to="/admin"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className={styles.mobileGridLink}
+                                        >
+                                            <span className={styles.linkContent}>{item}</span>
+                                        </Link>
+                                    ) : (
+                                        <a
+                                            href={`#${item.toLowerCase()}`}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (window.premiumScrollTo) window.premiumScrollTo(item.toLowerCase());
+                                                setIsMenuOpen(false);
+                                            }}
+                                            className={styles.mobileGridLink}
+                                        >
+                                            <span className={styles.linkContent}>{item}</span>
+                                        </a>
+                                    )}
+                                </motion.div>
                             ))}
                         </div>
                     </motion.div>
@@ -114,3 +129,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

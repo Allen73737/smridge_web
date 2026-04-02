@@ -55,8 +55,13 @@ const AdminLayout = () => {
     }, []);
 
     React.useEffect(() => {
-        if (!loading && !user) {
-            navigate('/admin');
+        if (!loading) {
+            if (!user) {
+                navigate('/admin');
+            } else if (user.role !== 'admin') {
+                // If logged in as non-admin, redirect to main site or show error
+                navigate('/?skipLoading=true');
+            }
         }
     }, [user, loading, navigate]);
 
@@ -191,6 +196,33 @@ const AdminLayout = () => {
                     <Outlet />
                 </div>
             </main>
+
+            {/* Premium Mobile Bottom Dock */}
+            {isMobile && (
+                <div className={styles.bottomDock}>
+                    {[
+                        { icon: LayoutDashboard, label: 'Dash', path: '/admin/dashboard' },
+                        { icon: Users, label: 'Users', path: '/admin/users' },
+                        { icon: Thermometer, label: 'Fridge', path: '/admin/fridge' },
+                        { icon: Settings, label: 'Rules', path: '/admin/thresholds' },
+                        { icon: Smartphone, label: 'Builds', path: '/admin/apk' },
+                        { icon: FileText, label: 'Logs', path: '/admin/logs' },
+                    ].map((item) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <div 
+                                key={item.path}
+                                className={`${styles.dockItem} ${isActive ? styles.active : ''}`}
+                                onClick={() => navigate(item.path)}
+                            >
+                                {isActive && <motion.div layoutId="dockglow" className={styles.dockActiveGlow} />}
+                                <item.icon size={22} className={styles.dockIcon} />
+                                <span className={styles.dockLabel}>{item.label}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 };

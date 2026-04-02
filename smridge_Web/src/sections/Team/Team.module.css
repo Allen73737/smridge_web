@@ -534,9 +534,7 @@
   .mainTitle { font-size: 2.2rem; }
   .verticalTitle { font-size: 2.3rem; }
   .rightBio { max-width: 200px; }
-}
-
-@media (max-width: 960px) {
+}@media (max-width: 960px) {
   .gridContainer {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 60px 1fr auto 60px;
@@ -544,25 +542,161 @@
     min-height: 80vh;
   }
   .headerRight { display: none; }
-  .rightContentArea { display: none; }
-  .bottomRightSocial { display: none; }
+  
+  /* Ensure side content remains visible even at 960px */
+  .rightContentArea { display: flex; }
+  .bottomRightSocial { display: flex; }
 
   .imageArea { grid-column: 2; grid-row: 2 / 4; }
   .bottomCenter { grid-column: 2; }
 }
 
-@media (max-width: 640px) {
-  .teamSection { padding: 0; }
+@media (max-width: 768px) {
+  .teamSection {
+    min-height: 100svh;
+    padding: 3rem 0.5rem;
+  }
+
   .gridContainer {
+    display: grid;
+    grid-template-columns: 100px 1fr 120px; /* Widened sidebars for readability */
+    grid-template-rows: 40px 1fr 70px;
+    height: 80vh;
+    min-height: 600px;
+    width: 100%;
+    gap: 0;
+    border-radius: 4px;
+    background: rgba(4, 9, 20, 0.8);
+    position: relative;
+    z-index: 10;
+  }
+
+  .cell {
+    padding: 0.75rem 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(4, 9, 20, 0.4);
+  }
+
+  .headerLeft, .headerCenter, .headerRight {
+    font-size: 0.65rem;
+    letter-spacing: 0.05rem;
+    padding: 0 0.25rem;
+  }
+
+  .mainTitleArea {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 1rem 0.25rem;
     display: flex;
     flex-direction: column;
-    height: auto;
-    border-radius: 0;
-    box-shadow: none;
+    justify-content: center;
   }
-  .cell { border-left: none; border-right: none; }
-  .headerLeft { display: none; }
-  .mainTitle { font-size: 2.5rem; }
-  .imageArea { min-height: 60vw; padding: 1rem; }
-  .bottomCenter { gap: 0; padding: 0 1rem; }
+
+  .mainTitle {
+    font-size: 1.1rem;
+    line-height: 0.85;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .missionText {
+    display: none;
+  }
+
+  .imageArea {
+    grid-column: 2;
+    grid-row: 2;
+    padding: 0.25rem;
+    height: 100%;
+  }
+
+  .rightContentArea {
+    grid-column: 3;
+    grid-row: 2;
+    padding: 0.5rem;
+    display: flex !important; /* Force visibility */
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+
+  .rightContentInner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    width: 100%;
+  }
+
+  .indexNumber {
+    font-size: 1.8rem;
+    margin-bottom: -0.5rem;
+  }
+
+  .indexSeparator {
+    width: 45px;
+    height: 1px;
+    margin: 0.2rem auto;
+  }
+
+  .verticalTitle {
+    font-size: 1.4rem;
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 0.85;
+    color: var(--color-primary);
+    word-break: break-word;
+    width: 100%;
+  }
+
+  .rightBio {
+    font-size: 0.8rem;
+    text-align: center;
+    max-width: 100%;
+    line-height: 1.25;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.4rem;
+  }
+
+  .bottomLeftSocial, .bottomRightSocial {
+    grid-row: 3;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bottomLeftSocial { grid-column: 1; }
+  .bottomRightSocial { grid-column: 3; }
+
+  .socialLabel {
+    font-size: 0.7rem;
+    margin-bottom: 2px;
+  }
+
+  .socialValue {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .bottomCenter {
+    grid-column: 2;
+    grid-row: 3;
+    padding: 0 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .progressBar {
+    margin: 0 0.5rem;
+    height: 1px;
+  }
+
+  .navBtn {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+  }
 }

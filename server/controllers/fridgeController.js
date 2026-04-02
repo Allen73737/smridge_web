@@ -2,6 +2,7 @@ const FridgeStatus = require('../models/FridgeStatus');
 const User = require('../models/User');
 const SensorData = require('../models/SensorData');
 const ActivityLog = require('../models/ActivityLog');
+const Threshold = require('../models/Threshold');
 
 // @desc    Get all fridge statuses
 // @route   GET /api/fridge
@@ -75,51 +76,127 @@ const getFridgeStatus = async (req, res) => {
 // @route   PUT /api/fridge/update
 // @access  Private
 const updateFridgeStatus = async (req, res) => {
-    if (req.user.role === 'admin') {
-        return res.status(403).json({ message: 'Admins cannot have or update fridge status.' });
-    }
+    try {
+        if (req.user.role === 'admin') {
+            return res.status(403).json({ message: 'Admins cannot have or update fridge status.' });
+        }
 
-    const { freshnessPercentage, gasLevel, temperature, humidity, doorStatus, weight, energyConsumption } = req.body;
+        const { freshnessPercentage, gasLevel, temperature, humidity, doorStatus, weight, energyConsumption } = req.body;
 
-    let status = await FridgeStatus.findOne({ userId: req.user._id });
+        // 1. Fetch latest thresholds (or defaults)
+        const activeThreshold = await Threshold.findOne().sort({ createdAt: -1 }) || {
+            gasLimitMin: 0.1,
+            gasLimitMax: 1.0,
+            temperatureLimitMin: 0,
+            temperatureLimitMax: 10,
+            humidityLimitMin: 40,
+            humidityLimitMax: 95,
+            freshnessWarningLevel: 50,
+        };
 
-    if (status) {
-        status.freshnessPercentage = freshnessPercentage ?? status.freshnessPercentage;
-        status.gasLevel = gasLevel ?? status.gasLevel;
-        status.temperature = temperature ?? status.temperature;
-        status.humidity = humidity ?? status.humidity;
-        status.doorStatus = doorStatus ?? status.doorStatus;
-        status.lastUpdated = Date.now();
+        let status = await FridgeStatus.findOne({ userId: req.user._id });
+        let isNewDevice = !status;
 
-        await status.save();
-    } else {
-        // Create new if not exists
-        status = await FridgeStatus.create({
+        if (status) {
+            status.freshnessPercentage = freshnessPercentage ?? status.freshnessPercentage;
+            status.gasLevel = gasLevel ?? status.gasLevel;
+            status.temperature = temperature ?? status.temperature;
+            status.humidity = humidity ?? status.humidity;
+            status.doorStatus = doorStatus ?? status.doorStatus;
+            status.lastUpdated = Date.now();
+
+            await status.save();
+        } else {
+            // Create new if not exists
+            status = await FridgeStatus.create({
+                userId: req.user._id,
+                freshnessPercentage,
+                gasLevel,
+                temperature,
+                humidity,
+                doorStatus,
+            });
+        }
+
+        // Persist to historical SensorData
+        await SensorData.create({
             userId: req.user._id,
-            freshnessPercentage,
-            gasLevel,
-            temperature,
-            humidity,
-            doorStatus,
+            temperature: temperature ?? (status ? status.temperature : 0),
+            humidity: humidity ?? (status ? status.humidity : 0),
+            gasLevel: gasLevel ?? (status ? status.gasLevel : 0),
+            weight: weight ?? 0,
+            doorStatus: doorStatus ?? (status ? status.doorStatus : 'closed'),
+            energyConsumption: energyConsumption ?? 0,
         });
+
+        const io = req.app.get('socketio');
+
+        // 2. Log Activity for specific events
+        let log;
+        if (isNewDevice) {
+            log = await ActivityLog.create({
+                userId: req.user._id,
+                action: 'REGISTER_DEVICE',
+                role: 'user',
+                details: 'Initial fridge sensor synchronization established'
+            });
+        }
+
+        // 3. Automated Threshold Alerts (Debounced - once per hour per type)
+        const lastHour = new Date(Date.now() - 60 * 60 * 1000);
+        const checkAlert = async (type, val, limit, msg) => {
+            if (val > limit) {
+                const existing = await ActivityLog.findOne({
+                    userId: req.user._id,
+                    action: type,
+                    timestamp: { $gte: lastHour }
+                });
+                
+                if (!existing) {
+                    const alertLog = await ActivityLog.create({
+                        userId: req.user._id,
+                        action: type,
+                        role: 'user',
+                        details: `${msg}: ${val} (Limit: ${limit})`
+                    });
+                    await alertLog.populate('userId', 'name email');
+                    if (io) io.emit('logAdded', alertLog);
+                }
+            }
+        };
+
+        if (temperature !== undefined) await checkAlert('TEMP_ALERT', temperature, activeThreshold.temperatureLimitMax, 'Temperature Threshold Exceeded');
+        if (gasLevel !== undefined) await checkAlert('GAS_ALERT', gasLevel, activeThreshold.gasLimitMax, 'Gas Concentration Threshold Exceeded');
+        if (freshnessPercentage !== undefined && freshnessPercentage < activeThreshold.freshnessWarningLevel) {
+           // Reuse alert logic but it's a MIN check
+           const existing = await ActivityLog.findOne({
+                userId: req.user._id,
+                action: 'SPOILAGE_ALERT',
+                timestamp: { $gte: lastHour }
+            });
+            if (!existing) {
+                const spoilerLog = await ActivityLog.create({
+                    userId: req.user._id,
+                    action: 'SPOILAGE_ALERT',
+                    role: 'user',
+                    details: `Low Freshness detected: ${freshnessPercentage}% (Warning level: ${activeThreshold.freshnessWarningLevel}%)`
+                });
+                await spoilerLog.populate('userId', 'name email');
+                if (io) io.emit('logAdded', spoilerLog);
+            }
+        }
+
+        // Emit socket event for dashboard updates
+        if (io) io.emit('fridgeUpdated', status);
+        if (log) {
+            await log.populate('userId', 'name email');
+            if (io) io.emit('logAdded', log);
+        }
+
+        res.json(status);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    // Persist to historical SensorData
-    await SensorData.create({
-        userId: req.user._id,
-        temperature: temperature ?? (status ? status.temperature : 0),
-        humidity: humidity ?? (status ? status.humidity : 0),
-        gasLevel: gasLevel ?? (status ? status.gasLevel : 0),
-        weight: weight ?? 0,
-        doorStatus: doorStatus ?? (status ? status.doorStatus : 'closed'),
-        energyConsumption: energyConsumption ?? 0,
-    });
-
-    // Emit socket event (handled in server.js via app set)
-    const io = req.app.get('socketio');
-    if (io) io.emit('fridgeUpdated', status);
-
-    res.json(status);
 };
 
 // @desc    Get admin dashboard stats

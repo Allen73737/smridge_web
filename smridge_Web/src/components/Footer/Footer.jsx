@@ -86,15 +86,15 @@ const Footer = () => {
                         <h3>Connect</h3>
                         <div className={styles.contactItem}>
                             <MapPin size={18} />
-                            <span>Silicon Valley, CA</span>
+                            <span>Infopark, Kakkanad, Kochi, Kerala</span>
                         </div>
                         <div className={styles.contactItem}>
                             <Phone size={18} />
-                            <span>+1 (555) SMRIDGE</span>
+                            <span>+91 94460 12345</span>
                         </div>
                         <div className={styles.contactItem}>
                             <Mail size={18} />
-                            <span>hello@smridge.ai</span>
+                            <span>smriidge@gmail.com</span>
                         </div>
                     </motion.div>
  

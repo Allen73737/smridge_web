@@ -9,6 +9,13 @@ const UsersManagement = () => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const fetchUsers = async () => {
         try {
@@ -31,7 +38,8 @@ const UsersManagement = () => {
             try {
                 await api.delete(`/users/${user._id}`);
                 setUsers(users.filter(u => u._id !== user._id));
-            } catch (error) {
+            } catch (err) {
+                console.error("Failed to delete user", err);
                 alert('Failed to delete user');
             }
         }
@@ -42,7 +50,8 @@ const UsersManagement = () => {
         try {
             const { data } = await api.put(`/users/block/${user._id}`);
             setUsers(users.map(u => u._id === user._id ? data : u));
-        } catch (error) {
+        } catch (err) {
+            console.error("Failed to block user", err);
             alert('Failed to update user status');
         }
     };
@@ -57,6 +66,19 @@ const UsersManagement = () => {
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    if (loading) {
+        return (
+            <div className={styles.loadingState}>
+                <motion.div 
+                    className={styles.loader}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <p>Syncing User Database...</p>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.usersContainer}>
@@ -74,44 +96,118 @@ const UsersManagement = () => {
             </div>
 
             <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Role</th>
-                            <th>Status / Activity</th>
-                            <th>Last Active</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                {!isMobile ? (
+                    <table className={styles.table}>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Status / Activity</th>
+                                <th>Last Active</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <AnimatePresence>
+                                {filteredUsers.map((user, index) => (
+                                    <motion.tr
+                                        key={user._id}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 20 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        className={`${styles.row} ${user.role === 'admin' ? styles.adminRow : ''}`}
+                                    >
+                                        <td>
+                                            <div className={styles.userInfo}>
+                                                <div className={`${styles.avatar} ${user.role === 'admin' ? styles.adminAvatar : ''}`}>
+                                                    {user.role === 'admin' ? <Crown size={12} /> : user.name.charAt(0)}
+                                                </div>
+                                                <div className={styles.userMeta}>
+                                                    <span className={styles.userName}>{user.name}</span>
+                                                    <span className={styles.userEmail}>{user.email}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={`${styles.roleBadge} ${user.role === 'admin' ? styles.admin : ''}`}>
+                                                {user.role}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles.statusGroup}>
+                                                <span className={`${styles.statusBadge} ${user.isBlocked ? styles.blocked : styles.active}`}>
+                                                    {user.isBlocked ? 'Blocked' : 'Active'}
+                                                </span>
+                                                <span className={`${styles.indicator} ${isOnline(user.lastActive) ? styles.online : styles.offline}`}>
+                                                    {isOnline(user.lastActive) ? 'Online' : 'Offline'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.timeInfo}>
+                                                <span>{new Date(user.lastActive).toLocaleDateString()}</span>
+                                                <small>{new Date(user.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.actions}>
+                                                <button 
+                                                    className={styles.actionBtn} 
+                                                    title="View Details"
+                                                >
+                                                    <Eye size={16} />
+                                                </button>
+                                                <button 
+                                                    className={`${styles.actionBtn} ${user.role === 'admin' ? styles.disabled : ''}`} 
+                                                    onClick={() => handleBlock(user)}
+                                                    disabled={user.role === 'admin'}
+                                                    title={user.isBlocked ? "Unblock User" : "Block User"}
+                                                >
+                                                    {user.isBlocked ? <ShieldOff size={16} color="#ff0055" /> : <Shield size={16} />}
+                                                </button>
+                                                <button 
+                                                    className={`${styles.actionBtn} ${styles.delete} ${user.role === 'admin' ? styles.disabled : ''}`} 
+                                                    onClick={() => handleDelete(user)}
+                                                    disabled={user.role === 'admin'}
+                                                    title="Delete User"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </AnimatePresence>
+                        </tbody>
+                    </table>
+                ) : (
+                    <div className={styles.userGrid}>
                         <AnimatePresence>
                             {filteredUsers.map((user, index) => (
-                                <motion.tr
+                                <motion.div
                                     key={user._id}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 20 }}
-                                    transition={{ delay: index * 0.05 }}
-                                    className={`${styles.row} ${user.role === 'admin' ? styles.adminRow : ''}`}
+                                    className={`${styles.userCard} ${user.role === 'admin' ? styles.adminCard : ''}`}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ delay: index * 0.02 }}
                                 >
-                                    <td>
+                                    <div className={styles.cardHeader}>
                                         <div className={styles.userInfo}>
                                             <div className={`${styles.avatar} ${user.role === 'admin' ? styles.adminAvatar : ''}`}>
-                                                {user.role === 'admin' ? <Crown size={12} /> : user.name.charAt(0)}
+                                                {user.role === 'admin' ? <Crown size={14} /> : user.name.charAt(0)}
                                             </div>
                                             <div className={styles.userMeta}>
                                                 <span className={styles.userName}>{user.name}</span>
                                                 <span className={styles.userEmail}>{user.email}</span>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td>
                                         <span className={`${styles.roleBadge} ${user.role === 'admin' ? styles.admin : ''}`}>
                                             {user.role}
                                         </span>
-                                    </td>
-                                    <td>
+                                    </div>
+                                    <div className={styles.cardStats}>
                                         <div className={styles.statusGroup}>
                                             <span className={`${styles.statusBadge} ${user.isBlocked ? styles.blocked : styles.active}`}>
                                                 {user.isBlocked ? 'Blocked' : 'Active'}
@@ -120,44 +216,36 @@ const UsersManagement = () => {
                                                 {isOnline(user.lastActive) ? 'Online' : 'Offline'}
                                             </span>
                                         </div>
-                                    </td>
-                                    <td>
                                         <div className={styles.timeInfo}>
                                             <span>{new Date(user.lastActive).toLocaleDateString()}</span>
                                             <small>{new Date(user.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <div className={styles.actions}>
-                                            <button 
-                                                className={styles.actionBtn} 
-                                                title="View Details"
-                                            >
-                                                <Eye size={16} />
-                                            </button>
-                                            <button 
-                                                className={`${styles.actionBtn} ${user.role === 'admin' ? styles.disabled : ''}`} 
-                                                onClick={() => handleBlock(user)}
-                                                disabled={user.role === 'admin'}
-                                                title={user.isBlocked ? "Unblock User" : "Block User"}
-                                            >
-                                                {user.isBlocked ? <ShieldOff size={16} color="#ff0055" /> : <Shield size={16} />}
-                                            </button>
-                                            <button 
-                                                className={`${styles.actionBtn} ${styles.delete} ${user.role === 'admin' ? styles.disabled : ''}`} 
-                                                onClick={() => handleDelete(user)}
-                                                disabled={user.role === 'admin'}
-                                                title="Delete User"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </motion.tr>
+                                    </div>
+                                    <div className={styles.cardActions}>
+                                        <button className={styles.actionBtnMobile}>
+                                            <Eye size={18} /> Details
+                                        </button>
+                                        <button 
+                                            className={`${styles.actionBtnMobile} ${user.role === 'admin' ? styles.disabled : ''}`} 
+                                            onClick={() => handleBlock(user)}
+                                            disabled={user.role === 'admin'}
+                                        >
+                                            {user.isBlocked ? <ShieldOff size={18} color="#ff0055" /> : <Shield size={18} />}
+                                            {user.isBlocked ? 'Unblock' : 'Block'}
+                                        </button>
+                                        <button 
+                                            className={`${styles.actionBtnMobile} ${styles.delete} ${user.role === 'admin' ? styles.disabled : ''}`} 
+                                            onClick={() => handleDelete(user)}
+                                            disabled={user.role === 'admin'}
+                                        >
+                                            <Trash2 size={18} /> Remove
+                                        </button>
+                                    </div>
+                                </motion.div>
                             ))}
                         </AnimatePresence>
-                    </tbody>
-                </table>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -25,6 +25,9 @@ const deleteUser = async (req, res) => {
             details: `Deleted user ${user.email}`,
         });
 
+        // Populate user info for real-time display
+        await log.populate('userId', 'name email');
+
         const io = req.app.get('socketio');
         if (io) io.emit('logAdded', log);
         res.json({ message: 'User removed' });
@@ -50,6 +53,9 @@ const blockUser = async (req, res) => {
             role: 'admin',
             details: `${user.isBlocked ? 'Blocked' : 'Unblocked'} user ${user.email}`,
         });
+
+        // Populate user info for real-time display
+        await log.populate('userId', 'name email');
 
         const io = req.app.get('socketio');
         if (io) io.emit('logAdded', log);
@@ -77,6 +83,9 @@ const updateUserRole = async (req, res) => {
             role: 'admin',
             details: `Updated role for ${user.email} to ${user.role}`,
         });
+
+        // Populate user info for real-time display
+        await log.populate('userId', 'name email');
 
         const io = req.app.get('socketio');
         if (io) io.emit('logAdded', log);

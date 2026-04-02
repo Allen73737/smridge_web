@@ -21,24 +21,29 @@ if (!fs.existsSync(uploadDir)) {
 
 const allowedOrigins = [
     process.env.FRONTEND_URL,
-    'http://localhost:5173', // Local Vite
-    'http://localhost:3000'  // Local React
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',   // Added for 127.0.0.1 support
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'    // Added for 127.0.0.1 support
 ].filter(Boolean);
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins.length > 0 ? allowedOrigins : '*',
+        origin: allowedOrigins,
         methods: ['GET', 'POST'],
     },
 });
+
+// Register socketio in app for global access in controllers
+app.set('socketio', io);
 
 // Middleware
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(cors({
-    origin: allowedOrigins.length > 0 ? allowedOrigins : '*',
+    origin: allowedOrigins,
     credentials: true
 }));
 app.use(helmet({

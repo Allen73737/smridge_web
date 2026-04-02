@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import api, { setAuthToken } from '../services/api';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -8,13 +8,25 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const storedUser = localStorage.getItem('smridge_user');
+        const storedToken = localStorage.getItem('smridge_token');
+        
+        if (storedUser && storedToken) {
+            setUser(JSON.parse(storedUser));
+        }
         setLoading(false);
     }, []);
 
     const login = async (email, password) => {
         try {
-            const { data } = await api.post('/auth/login', { email, password });
-            setAuthToken(data.token);
+            // Trim and lowercase email for robustness
+            const normalizedEmail = email.trim().toLowerCase();
+            const { data } = await api.post('/auth/login', { email: normalizedEmail, password });
+            
+            // Persist session
+            localStorage.setItem('smridge_user', JSON.stringify(data));
+            localStorage.setItem('smridge_token', data.token);
+            
             setUser(data);
             return { success: true };
         } catch (error) {
@@ -26,7 +38,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        setAuthToken(null);
+        localStorage.removeItem('smridge_user');
+        localStorage.removeItem('smridge_token');
         setUser(null);
     };
 

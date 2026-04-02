@@ -36,7 +36,7 @@ const featuresData = [
     }
 ];
 
-const FeatureCard = ({ feature, index, range, targetScale, progress }) => {
+const FeatureCard = ({ feature, index, range, targetScale, progress, customTop }) => {
     const container = useRef(null);
     
     // Use the progress from parent to drive scale, rotation, and slight translation
@@ -51,7 +51,7 @@ const FeatureCard = ({ feature, index, range, targetScale, progress }) => {
                     scale, 
                     rotate,
                     opacity,
-                    top: `calc(10% + ${index * 30}px)`, // Adjust stack spacing
+                    top: customTop, // Use dynamic sticky top
                     zIndex: index // Ensure cards stack correctly
                 }}
                 className={styles.card}
@@ -77,6 +77,14 @@ const FeatureCard = ({ feature, index, range, targetScale, progress }) => {
 
 const Features = () => {
     const container = useRef(null);
+    const [isMobile, setIsMobile] = React.useState(window.innerWidth < 768);
+
+    React.useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const { scrollYProgress } = useScroll({
         target: container,
         offset: ['start start', 'end end']
@@ -94,7 +102,13 @@ const Features = () => {
             </div>
 
             {featuresData.map((feature, i) => {
-                const targetScale = 1 - ((featuresData.length - i) * 0.04);
+                // Adaptive scaling and positioning for mobile
+                const scaleStep = isMobile ? 0.02 : 0.04;
+                const topOffset = isMobile ? 5 : 10;
+                const stackPadding = isMobile ? 12 : 30;
+
+                const targetScale = 1 - ((featuresData.length - i) * scaleStep);
+                
                 return (
                     <FeatureCard
                         key={feature.id}
@@ -103,6 +117,7 @@ const Features = () => {
                         range={[i * (1 / featuresData.length), 1]}
                         targetScale={targetScale}
                         progress={scrollYProgress}
+                        customTop={`calc(${topOffset}% + ${i * stackPadding}px)`}
                     />
                 );
             })}

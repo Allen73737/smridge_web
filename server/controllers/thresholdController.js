@@ -49,15 +49,21 @@ const updateThresholds = async (req, res) => {
     });
 
     if (threshold) {
-        await ActivityLog.create({
+        const log = await ActivityLog.create({
             userId: req.user._id,
             action: 'UPDATE_THRESHOLD',
             role: 'admin',
             details: 'Updated global environmental thresholds',
         });
 
+        // Populate user info for real-time display
+        await log.populate('userId', 'name email');
+
         const io = req.app.get('socketio');
-        io.emit('thresholdUpdated', threshold);
+        if (io) {
+            io.emit('logAdded', log);
+            io.emit('thresholdUpdated', threshold);
+        }
 
         res.json(threshold);
     } else {

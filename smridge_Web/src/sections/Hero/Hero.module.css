@@ -170,15 +170,17 @@
     }
 
     .buttonGroup {
-        flex-direction: column;
+        flex-direction: row;
         gap: 1rem;
         width: 100%;
-        max-width: 300px;
-        margin: 0 auto;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     .primaryButton, .secondaryButton {
-        width: 100%;
+        flex: 1;
+        min-width: 140px;
+        max-width: 200px;
     }
 
     .modelContainer {
@@ -189,140 +191,81 @@
     }
 }
 
-/* Embedded Fridge Status Card (Integrated) */
-.embeddedScreenContainer {
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    user-select: none;
-    pointer-events: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 450px;
-    height: 320px;
-}
+/* ─── Ultra-Premium Mobile ≤768px ─── */
+@media (max-width: 768px) {
+    .heroSection {
+        padding: 40px 1rem;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at 70% 50%, #0a1020 0%, #05050a 100%);
+    }
 
-.embeddedStatusCard {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: rgba(0, 8, 12, 0.95);
-    backdrop-filter: blur(20px);
-    padding: 25px 30px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
-    color: white;
-}
+    .contentContainer {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+        height: auto;
+        text-align: left;
+    }
 
-.statusRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-}
+    .textContent {
+        flex: 0 0 32%;
+        order: 1;
+        padding: 0;
+        z-index: 5;
+    }
 
-.label {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1.1rem;
-    font-weight: 500;
-}
+    .headline {
+        font-size: clamp(1rem, 5vw, 1.4rem);
+        line-height: 1.1;
+        margin-bottom: 0.8rem;
+        letter-spacing: -0.01em;
+    }
 
-.cyanValue {
-    color: #4df0ff;
-    font-weight: 700;
-    font-size: 1.3rem;
-    text-shadow: 0 0 15px rgba(77, 240, 255, 0.4);
-}
+    .description {
+        font-size: 0.72rem;
+        line-height: 1.35;
+        margin-bottom: 1.2rem;
+        color: rgba(224, 224, 224, 0.8);
+        max-width: 100%;
+    }
 
-.freshDots {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
+    .buttonGroup {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: fit-content;
+    }
 
-.dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    opacity: 0.25;
-}
+    .primaryButton, .secondaryButton {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.65rem;
+        letter-spacing: 0.03rem;
+        width: 100%;
+        min-width: 110px;
+        max-width: 130px;
+        border-radius: 4px;
+        text-align: center;
+    }
 
-.dotActive {
-    opacity: 1;
-    transform: scale(1.15);
-    box-shadow: 0 0 12px currentColor;
-}
+    .modelContainer {
+        flex: 0 0 68%;
+        order: 2;
+        height: 60vh;
+        min-height: unset;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        left: 5%;
+    }
 
-.green { color: #50ffab; background-color: currentColor; }
-.yellow { color: #ffd740; background-color: currentColor; }
-.red { color: #ff5252; background-color: currentColor; }
-
-.doorStatusWrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.doorValue {
-    color: #50ffab;
-    font-weight: 700;
-    font-size: 1.3rem;
-}
-
-.chevron {
-    background: rgba(255, 255, 255, 0.08);
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 0.65rem;
-    color: #50ffab;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.doorBadge {
-    background: rgba(0, 255, 157, 0.15);
-    color: #00ff9d;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 800;
-    border: 1px solid rgba(0, 255, 157, 0.35);
-    text-transform: uppercase;
-}
-
-.greenText {
-    color: #00ff9d;
-    font-weight: 600;
-}
-
-.freshDots {
-    display: flex;
-    gap: 4px;
-}
-
-.dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.dotActive {
-    background: #00ff9d;
-    box-shadow: 0 0 8px #00ff9d;
-}
-
-.doorBadge {
-    background: rgba(0, 255, 157, 0.1);
-    color: #00ff9d;
-    padding: 2px 8px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.7rem;
+    .scrollIndicator {
+        display: flex;
+        bottom: 1.5rem;
+        transform: translateX(-50%) scale(0.6);
+    }
 }

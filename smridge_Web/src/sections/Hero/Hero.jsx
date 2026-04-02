@@ -1,11 +1,12 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from "framer-motion";
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Environment, Float, ContactShadows, Html, Text as ScreenText } from '@react-three/drei';
+import { OrbitControls, Environment, ContactShadows, Text as ScreenText } from '@react-three/drei';
 import * as THREE from 'three';
 import styles from './Hero.module.css';
-import { Reveal, TextReveal } from '../../components/Effects/Reveal';
+import { Reveal } from '../../components/Effects/Reveal';
 
+/* ─── Animated number counter ─── */
 const FridgeModel = () => {
     const meshRef = useRef();
 
@@ -189,6 +190,14 @@ const FridgeModel = () => {
 
 const Hero = () => {
     const containerRef = useRef(null);
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const scrollToSection = (id) => {
         if (window.premiumScrollTo) {
             window.premiumScrollTo(id);
@@ -203,7 +212,7 @@ const Hero = () => {
         offset: ["start start", "end start"]
     });
 
-    const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+    const y = useTransform(scrollYProgress, [0, 1], ["0%", isMobile ? "20%" : "50%"]);
     const opacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
     const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
     const glowY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
@@ -216,8 +225,8 @@ const Hero = () => {
             <motion.div style={{ y, opacity, scale }} className={styles.contentContainer}>
                 <motion.div
                     className={styles.textContent}
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, x: isMobile ? 0 : -50, y: isMobile ? 20 : 0 }}
+                    animate={{ opacity: 1, x: 0, y: 0 }}
                     transition={{ duration: 1, delay: 0.5 }}
                 >
                     <Reveal delay={0.2}>
@@ -266,16 +275,17 @@ const Hero = () => {
                     transition={{ duration: 1.5, delay: 0.2 }}
                 >
                     <Canvas 
-                        camera={{ position: [0, 0, 5], fov: window.innerWidth < 768 ? 60 : 45 }}
-                        gl={{ precision: 'highp', antialias: true }}
+                        camera={{ 
+                            position: isMobile ? [0, 0, 5] : [0, 0, 5], 
+                            fov: isMobile ? 30 : 45 
+                        }}
+                        gl={{ precision: isMobile ? 'mediump' : 'highp', antialias: true }}
                     >
                         <ambientLight intensity={0.8} />
                         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} />
                         <pointLight position={[-10, -10, -10]} intensity={2} color="#00f0ff" />
                         <Environment preset="night" />
- 
                         <FridgeModel />
- 
                         <ContactShadows position={[0, -1.4, 0]} opacity={0.5} scale={10} blur={2.5} far={4} color="#00f0ff" />
                         <OrbitControls enableZoom={true} enablePan={true} autoRotate autoRotateSpeed={0.5} />
                     </Canvas>
