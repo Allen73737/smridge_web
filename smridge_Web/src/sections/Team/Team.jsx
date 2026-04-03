@@ -340,7 +340,7 @@ const Team = () => {
       >
         <div className={styles.titleBlock}>
           <h2 className={styles.mainTitle}>
-            MEET<br />THE<br />FOUNDERS
+            {isMobile ? "MEET THE FOUNDERS" : <>{'MEET'}<br />{'THE'}<br />{'FOUNDERS'}</>}
           </h2>
 
           <div className={styles.missionText}>

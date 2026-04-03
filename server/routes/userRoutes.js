@@ -5,6 +5,7 @@ const {
     deleteUser,
     blockUser,
     updateUserRole,
+    toggleSimulationStatus,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 const { admin } = require('../middleware/roleMiddleware');
@@ -15,5 +16,6 @@ router
     .delete(protect, admin, deleteUser);
 router.route('/block/:id').put(protect, admin, blockUser);
 router.route('/role/:id').put(protect, admin, updateUserRole);
+router.route('/simulation/:id').put(protect, admin, toggleSimulationStatus);
 
 module.exports = router;

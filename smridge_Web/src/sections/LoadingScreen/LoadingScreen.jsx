@@ -8,16 +8,17 @@ const LoadingScreen = ({ onComplete }) => {
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
+        const intervalTime = 40; // 40ms * 25 steps = 1000ms
         const timer = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) {
                     clearInterval(timer);
-                    setTimeout(onComplete, 800);
+                    onComplete(); 
                     return 100;
                 }
-                return prev + Math.random() * 8;
+                return prev + 4;
             });
-        }, 80);
+        }, intervalTime);
 
         return () => clearInterval(timer);
     }, [onComplete]);
@@ -25,7 +26,7 @@ const LoadingScreen = ({ onComplete }) => {
     return (
         <motion.div
             className={styles.container}
-            exit={{ opacity: 0, scale: 1.1, transition: { duration: 0.8, ease: "circIn" } }}
+            exit={{ opacity: 0, scale: 1.05, transition: { duration: 0.4, ease: "easeIn" } }}
         >
             <div className={styles.content}>
                 <motion.div
@@ -34,9 +35,17 @@ const LoadingScreen = ({ onComplete }) => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1.2 }}
                 >
-                    <img src={logo} alt="Smridge Logo" className={styles.logoImg} />
-                    <h1 className={styles.logoText}>SMRIDGE</h1>
-                    <p className={styles.motto}>Where Vision Meets Refrigeration</p>
+                    <img 
+                        src={logo} 
+                        alt="Smridge Logo" 
+                        className={styles.logoImg} 
+                    />
+                    <h1 className={styles.logoText}>
+                        SMRIDGE
+                    </h1>
+                    <p className={styles.motto}>
+                        Where Vision Meets Refrigeration
+                    </p>
                 </motion.div>
 
                 <div className={styles.loaderWrapper}>

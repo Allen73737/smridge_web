@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Lenis from '@studio-freight/lenis';
 import Navbar from './components/Navigation/Navbar';
 import LoadingScreen from './sections/LoadingScreen/LoadingScreen';
@@ -91,22 +91,33 @@ const Home = ({ loading }) => {
   }, []);
 
   return (
-    <>
-      <main style={{ opacity: loading ? 0 : 1, position: 'relative' }}>
-        <StreakOverlay isActive={isScrolling} />
-        <Hero />
-        <ProblemStats />
-        <Sensors />
-        <Features />
-        <Insights />
-        <AppPreview />
-        <DownloadAPK />
-        <Team />
-        <Footer />
-      </main>
-    </>
+    <main style={{ opacity: loading ? 0 : 1, position: 'relative' }}>
+      <StreakOverlay isActive={isScrolling} />
+      <Hero />
+      <ProblemStats />
+      <Sensors />
+      <Features />
+      <Insights />
+      <AppPreview />
+      <DownloadAPK />
+      <Team />
+    </main>
   );
 };
+
+const PublicLayout = ({ children }) => (
+  <>
+    <Navbar />
+    <motion.div
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 1.2, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+    <Footer />
+  </>
+);
 
 const AdminPlaceholder = ({ title }) => (
   <div style={{ color: 'white', fontSize: '2rem', textAlign: 'center', marginTop: '20%' }}>
@@ -125,28 +136,38 @@ const App = () => {
       <AuthProvider>
         <Router>
           <AnimatePresence mode="wait">
-            {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
+            {loading ? (
+              <LoadingScreen key="loading" onComplete={() => setLoading(false)} />
+            ) : (
+              <motion.div
+                key="content"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
+              >
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={
+                    <PublicLayout>
+                      <Home loading={false} />
+                    </PublicLayout>
+                  } />
+                  
+                  {/* Admin Routes - Isolated from Public Layout */}
+                  <Route path="/admin" element={<Login />} />
+                  <Route path="/admin/*" element={<AdminLayout />}>
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="users" element={<UsersManagement />} />
+                    <Route path="fridge" element={<FridgeStatus />} />
+                    <Route path="thresholds" element={<Thresholds />} />
+                    <Route path="apk" element={<BuildManager />} />
+                    <Route path="team" element={<TeamManagement />} />
+                    <Route path="logs" element={<ActivityLogs />} />
+                  </Route>
+                </Routes>
+              </motion.div>
+            )}
           </AnimatePresence>
-          <Routes>
-            <Route path="/" element={
-              <>
-                <Navbar />
-                <Home loading={loading} />
-              </>
-            } />
-
-            {/* Admin Routes */}
-            <Route path="/admin" element={<Login />} />
-            <Route path="/admin/*" element={<AdminLayout />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="users" element={<UsersManagement />} />
-              <Route path="fridge" element={<FridgeStatus />} />
-              <Route path="thresholds" element={<Thresholds />} />
-              <Route path="apk" element={<BuildManager />} />
-              <Route path="team" element={<TeamManagement />} />
-              <Route path="logs" element={<ActivityLogs />} />
-            </Route>
-          </Routes>
         </Router>
       </AuthProvider>
     </ToastProvider>

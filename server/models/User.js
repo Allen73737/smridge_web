@@ -36,6 +36,10 @@ const userSchema = mongoose.Schema({
         type: String,
         default: null,
     },
+    isSimulationEnabled: {
+        type: Boolean,
+        default: false,
+    },
 }, {
     timestamps: true,
 });

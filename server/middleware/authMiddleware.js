@@ -13,11 +13,26 @@ const protect = async (req, res, next) => {
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+            // 🕒 Update lastActive (Throttled: 5 mins)
+            const now = new Date();
+            const fiveMinutes = 5 * 60 * 1000;
+
+            await User.findOneAndUpdate(
+                { 
+                    _id: decoded.id, 
+                    $or: [
+                        { lastActive: { $lt: new Date(now - fiveMinutes) } },
+                        { lastActive: { $exists: false } },
+                        { lastActive: null }
+                    ]
+                },
+                { $set: { lastActive: now } },
+                { timestamps: false }
+            );
+
             const user = await User.findById(decoded.id).select('-password');
 
             if (user) {
-                user.lastActive = new Date();
-                await user.save();
                 req.user = user;
                 next();
             } else {

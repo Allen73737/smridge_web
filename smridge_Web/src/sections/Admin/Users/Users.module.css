@@ -329,6 +329,137 @@
     cursor: not-allowed;
     filter: grayscale(1);
 }
+
+.activeEye {
+    background: rgba(0, 240, 255, 0.1) !important;
+    color: #4df0ff !important;
+    border: 1px solid rgba(0, 240, 255, 0.3) !important;
+}
+
+.expandedRow {
+    background: rgba(0, 240, 255, 0.05) !important;
+}
+
+.detailsRow {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.detailsContent {
+    padding: 1.5rem 2rem;
+    border-left: 3px solid var(--color-primary);
+    margin: 0.5rem 1.5rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0 12px 12px 0;
+}
+
+.detailItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.detailLabel h3 {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 0.3rem;
+    font-family: 'Anta', sans-serif;
+}
+
+.detailLabel p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.simulationToggle {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 0.8rem 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 200px;
+}
+
+.simulationToggle:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.simulationToggle span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+.toggleTrack {
+    width: 48px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.4s ease;
+}
+
+.toggleKnob {
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.simActive {
+    border-color: var(--color-primary);
+    background: rgba(0, 240, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+}
+
+.simActive span {
+    color: var(--color-primary);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+.simActive .toggleTrack {
+    background: var(--color-primary);
+}
+
+.simActive .toggleKnob {
+    left: 26px;
+}
+
+/* Mobile Specific */
+.expandedCard {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 10px 30px rgba(0, 240, 255, 0.1);
+}
+
+.activeEyeMobile {
+    color: var(--color-primary) !important;
+}
+
+.mobileDetails {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.mobileDetails .simulationToggle {
+    width: 100%;
+    justify-content: space-between;
+}
 @media (max-width: 600px) {
     .table th, .table td {
         padding: 1rem 0.8rem;

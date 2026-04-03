@@ -17,6 +17,8 @@ const UsersManagement = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    const [expandedUserId, setExpandedUserId] = useState(null);
+
     const fetchUsers = async () => {
         try {
             const { data } = await api.get('/users');
@@ -54,6 +56,20 @@ const UsersManagement = () => {
             console.error("Failed to block user", err);
             alert('Failed to update user status');
         }
+    };
+
+    const handleToggleSimulation = async (user) => {
+        try {
+            const { data } = await api.put(`/users/simulation/${user._id}`);
+            setUsers(users.map(u => u._id === user._id ? data : u));
+        } catch (err) {
+            console.error("Failed to toggle simulation", err);
+            alert('Failed to update simulation status');
+        }
+    };
+
+    const toggleDetails = (userId) => {
+        setExpandedUserId(expandedUserId === userId ? null : userId);
     };
 
     const isOnline = (lastActive) => {
@@ -110,73 +126,105 @@ const UsersManagement = () => {
                         <tbody>
                             <AnimatePresence>
                                 {filteredUsers.map((user, index) => (
-                                    <motion.tr
-                                        key={user._id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: 20 }}
-                                        transition={{ delay: index * 0.05 }}
-                                        className={`${styles.row} ${user.role === 'admin' ? styles.adminRow : ''}`}
-                                    >
-                                        <td>
-                                            <div className={styles.userInfo}>
-                                                <div className={`${styles.avatar} ${user.role === 'admin' ? styles.adminAvatar : ''}`}>
-                                                    {user.role === 'admin' ? <Crown size={12} /> : user.name.charAt(0)}
+                                    <React.Fragment key={user._id}>
+                                        <motion.tr
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 20 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            className={`${styles.row} ${user.role === 'admin' ? styles.adminRow : ''} ${expandedUserId === user._id ? styles.expandedRow : ''}`}
+                                        >
+                                            <td>
+                                                <div className={styles.userInfo}>
+                                                    <div className={`${styles.avatar} ${user.role === 'admin' ? styles.adminAvatar : ''}`}>
+                                                        {user.role === 'admin' ? <Crown size={12} /> : user.name.charAt(0)}
+                                                    </div>
+                                                    <div className={styles.userMeta}>
+                                                        <span className={styles.userName}>{user.name}</span>
+                                                        <span className={styles.userEmail}>{user.email}</span>
+                                                    </div>
                                                 </div>
-                                                <div className={styles.userMeta}>
-                                                    <span className={styles.userName}>{user.name}</span>
-                                                    <span className={styles.userEmail}>{user.email}</span>
+                                            </td>
+                                            <td>
+                                                <span className={`${styles.roleBadge} ${user.role === 'admin' ? styles.admin : ''}`}>
+                                                    {user.role}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className={styles.statusGroup}>
+                                                    <span className={`${styles.statusBadge} ${user.isBlocked ? styles.blocked : styles.active}`}>
+                                                        {user.isBlocked ? 'Blocked' : 'Active'}
+                                                    </span>
+                                                    <span className={`${styles.indicator} ${isOnline(user.lastActive) ? styles.online : styles.offline}`}>
+                                                        {isOnline(user.lastActive) ? 'Online' : 'Offline'}
+                                                    </span>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={`${styles.roleBadge} ${user.role === 'admin' ? styles.admin : ''}`}>
-                                                {user.role}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className={styles.statusGroup}>
-                                                <span className={`${styles.statusBadge} ${user.isBlocked ? styles.blocked : styles.active}`}>
-                                                    {user.isBlocked ? 'Blocked' : 'Active'}
-                                                </span>
-                                                <span className={`${styles.indicator} ${isOnline(user.lastActive) ? styles.online : styles.offline}`}>
-                                                    {isOnline(user.lastActive) ? 'Online' : 'Offline'}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className={styles.timeInfo}>
-                                                <span>{new Date(user.lastActive).toLocaleDateString()}</span>
-                                                <small>{new Date(user.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className={styles.actions}>
-                                                <button 
-                                                    className={styles.actionBtn} 
-                                                    title="View Details"
+                                            </td>
+                                            <td>
+                                                <div className={styles.timeInfo}>
+                                                    <span>{new Date(user.lastActive).toLocaleDateString()}</span>
+                                                    <small>{new Date(user.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className={styles.actions}>
+                                                    <button 
+                                                        className={`${styles.actionBtn} ${expandedUserId === user._id ? styles.activeEye : ''}`}
+                                                        title="View Details"
+                                                        onClick={() => toggleDetails(user._id)}
+                                                    >
+                                                        <Eye size={16} />
+                                                    </button>
+                                                    <button 
+                                                        className={`${styles.actionBtn} ${user.role === 'admin' ? styles.disabled : ''}`} 
+                                                        onClick={() => handleBlock(user)}
+                                                        disabled={user.role === 'admin'}
+                                                        title={user.isBlocked ? "Unblock User" : "Block User"}
+                                                    >
+                                                        {user.isBlocked ? <ShieldOff size={16} color="#ff0055" /> : <Shield size={16} />}
+                                                    </button>
+                                                    <button 
+                                                        className={`${styles.actionBtn} ${styles.delete} ${user.role === 'admin' ? styles.disabled : ''}`} 
+                                                        onClick={() => handleDelete(user)}
+                                                        disabled={user.role === 'admin'}
+                                                        title="Delete User"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                        <AnimatePresence>
+                                            {expandedUserId === user._id && (
+                                                <motion.tr
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className={styles.detailsRow}
                                                 >
-                                                    <Eye size={16} />
-                                                </button>
-                                                <button 
-                                                    className={`${styles.actionBtn} ${user.role === 'admin' ? styles.disabled : ''}`} 
-                                                    onClick={() => handleBlock(user)}
-                                                    disabled={user.role === 'admin'}
-                                                    title={user.isBlocked ? "Unblock User" : "Block User"}
-                                                >
-                                                    {user.isBlocked ? <ShieldOff size={16} color="#ff0055" /> : <Shield size={16} />}
-                                                </button>
-                                                <button 
-                                                    className={`${styles.actionBtn} ${styles.delete} ${user.role === 'admin' ? styles.disabled : ''}`} 
-                                                    onClick={() => handleDelete(user)}
-                                                    disabled={user.role === 'admin'}
-                                                    title="Delete User"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </motion.tr>
+                                                    <td colSpan="5">
+                                                        <div className={styles.detailsContent}>
+                                                            <div className={styles.detailItem}>
+                                                                <div className={styles.detailLabel}>
+                                                                    <h3>Data Simulation</h3>
+                                                                    <p>Enable artificial sensor drift for this user when hardware is offline.</p>
+                                                                </div>
+                                                                <button 
+                                                                    className={`${styles.simulationToggle} ${user.isSimulationEnabled ? styles.simActive : ''}`}
+                                                                    onClick={() => handleToggleSimulation(user)}
+                                                                >
+                                                                    <div className={styles.toggleTrack}>
+                                                                        <div className={styles.toggleKnob} />
+                                                                    </div>
+                                                                    <span>{user.isSimulationEnabled ? 'Simulation ON' : 'Simulation OFF'}</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </motion.tr>
+                                            )}
+                                        </AnimatePresence>
+                                    </React.Fragment>
                                 ))}
                             </AnimatePresence>
                         </tbody>
@@ -187,7 +235,7 @@ const UsersManagement = () => {
                             {filteredUsers.map((user, index) => (
                                 <motion.div
                                     key={user._id}
-                                    className={`${styles.userCard} ${user.role === 'admin' ? styles.adminCard : ''}`}
+                                    className={`${styles.userCard} ${user.role === 'admin' ? styles.adminCard : ''} ${expandedUserId === user._id ? styles.expandedCard : ''}`}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
@@ -222,8 +270,11 @@ const UsersManagement = () => {
                                         </div>
                                     </div>
                                     <div className={styles.cardActions}>
-                                        <button className={styles.actionBtnMobile}>
-                                            <Eye size={18} /> Details
+                                        <button 
+                                            className={`${styles.actionBtnMobile} ${expandedUserId === user._id ? styles.activeEyeMobile : ''}`}
+                                            onClick={() => toggleDetails(user._id)}
+                                        >
+                                            <Eye size={18} /> {expandedUserId === user._id ? 'Close' : 'Details'}
                                         </button>
                                         <button 
                                             className={`${styles.actionBtnMobile} ${user.role === 'admin' ? styles.disabled : ''}`} 
@@ -241,6 +292,31 @@ const UsersManagement = () => {
                                             <Trash2 size={18} /> Remove
                                         </button>
                                     </div>
+                                    
+                                    <AnimatePresence>
+                                        {expandedUserId === user._id && (
+                                            <motion.div 
+                                                className={styles.mobileDetails}
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                            >
+                                                <div className={styles.detailLabel}>
+                                                    <h3>Simulation Settings</h3>
+                                                    <p>Control sensor simulation for testing purposes.</p>
+                                                </div>
+                                                <button 
+                                                    className={`${styles.simulationToggle} ${user.isSimulationEnabled ? styles.simActive : ''}`}
+                                                    onClick={() => handleToggleSimulation(user)}
+                                                >
+                                                    <div className={styles.toggleTrack}>
+                                                        <div className={styles.toggleKnob} />
+                                                    </div>
+                                                    <span>{user.isSimulationEnabled ? 'Enabled' : 'Disabled'}</span>
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </motion.div>
                             ))}
                         </AnimatePresence>

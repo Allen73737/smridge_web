@@ -97,9 +97,40 @@ const updateUserRole = async (req, res) => {
     }
 };
 
+// @desc    Toggle simulation status for user
+// @route   PUT /api/users/simulation/:id
+// @access  Private/Admin
+const toggleSimulationStatus = async (req, res) => {
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+        user.isSimulationEnabled = !user.isSimulationEnabled;
+        await user.save();
+
+        const log = await ActivityLog.create({
+            userId: req.user._id,
+            action: 'TOGGLE_SIMULATION',
+            role: 'admin',
+            details: `Simulation ${user.isSimulationEnabled ? 'enabled' : 'disabled'} for ${user.email}`,
+        });
+
+        // Populate user info for real-time display
+        await log.populate('userId', 'name email');
+
+        const io = req.app.get('socketio');
+        if (io) io.emit('logAdded', log);
+
+        res.json(user);
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
+};
+
 module.exports = {
     getUsers,
     deleteUser,
     blockUser,
     updateUserRole,
+    toggleSimulationStatus,
 };
