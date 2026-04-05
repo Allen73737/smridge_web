@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const ActivityLog = require('../models/ActivityLog');
+const FridgeStatus = require('../models/FridgeStatus');
+const SensorData = require('../models/SensorData');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -16,13 +18,19 @@ const deleteUser = async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (user) {
-        await user.remove();
-        // Log activity
+        // Complete Deletion: Remove associated data
+        await FridgeStatus.deleteMany({ userId: user._id });
+        await SensorData.deleteMany({ userId: user._id });
+        await ActivityLog.deleteMany({ userId: user._id });
+
+        await user.deleteOne();
+
+        // Log activity by the admin who performed the deletion
         const log = await ActivityLog.create({
             userId: req.user._id,
             action: 'DELETE_USER',
             role: 'admin',
-            details: `Deleted user ${user.email}`,
+            details: `Deleted user ${user.email} and all associated data records`,
         });
 
         // Populate user info for real-time display

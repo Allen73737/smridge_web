@@ -4,6 +4,8 @@ import { Search, Eye, Trash2, Shield, ShieldOff, MoreVertical, Crown } from 'luc
 import styles from './Users.module.css';
 
 import api from '../../../services/api';
+import { useToast } from '../../../context/ToastContext';
+import ConfirmDialog from '../../../components/Common/ConfirmDialog/ConfirmDialog';
 
 const UsersManagement = () => {
     const [users, setUsers] = useState([]);
@@ -18,13 +20,15 @@ const UsersManagement = () => {
     }, []);
 
     const [expandedUserId, setExpandedUserId] = useState(null);
+    const { showToast } = useToast();
+    const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, user: null });
 
     const fetchUsers = async () => {
         try {
             const { data } = await api.get('/users');
             setUsers(data);
-        } catch (error) {
-            console.error("Failed to fetch users", error);
+        } catch {
+            console.error("Failed to fetch users");
         } finally {
             setLoading(false);
         }
@@ -36,14 +40,22 @@ const UsersManagement = () => {
 
     const handleDelete = async (user) => {
         if (user.role === 'admin') return;
-        if (window.confirm(`Delete user ${user.name}? This action cannot be undone.`)) {
-            try {
-                await api.delete(`/users/${user._id}`);
-                setUsers(users.filter(u => u._id !== user._id));
-            } catch (err) {
-                console.error("Failed to delete user", err);
-                alert('Failed to delete user');
-            }
+        setConfirmConfig({ isOpen: true, user });
+    };
+
+    const performDelete = async () => {
+        const user = confirmConfig.user;
+        if (!user) return;
+
+        try {
+            await api.delete(`/users/${user._id}`);
+            setUsers(users.filter(u => u._id !== user._id));
+            showToast(`User ${user.name} and all associated data deleted successfully`, 'success');
+        } catch {
+            console.error("Failed to delete user");
+            showToast('Failed to delete user. Please check your connection.', 'error');
+        } finally {
+            setConfirmConfig({ isOpen: false, user: null });
         }
     };
 
@@ -52,9 +64,10 @@ const UsersManagement = () => {
         try {
             const { data } = await api.put(`/users/block/${user._id}`);
             setUsers(users.map(u => u._id === user._id ? data : u));
-        } catch (err) {
-            console.error("Failed to block user", err);
-            alert('Failed to update user status');
+            showToast(`${user.name} has been ${data.isBlocked ? 'blocked' : 'unblocked'}`, 'info');
+        } catch {
+            console.error("Failed to block user");
+            showToast('Failed to update user status', 'error');
         }
     };
 
@@ -62,9 +75,10 @@ const UsersManagement = () => {
         try {
             const { data } = await api.put(`/users/simulation/${user._id}`);
             setUsers(users.map(u => u._id === user._id ? data : u));
-        } catch (err) {
-            console.error("Failed to toggle simulation", err);
-            alert('Failed to update simulation status');
+            showToast(`Simulation ${data.isSimulationEnabled ? 'enabled' : 'disabled'} for ${user.name}`, 'info');
+        } catch {
+            console.error("Failed to toggle simulation");
+            showToast('Failed to update simulation status', 'error');
         }
     };
 
@@ -323,6 +337,16 @@ const UsersManagement = () => {
                     </div>
                 )}
             </div>
+
+            <ConfirmDialog 
+                isOpen={confirmConfig.isOpen}
+                title="Delete User Account?"
+                message={`Are you sure you want to delete ${confirmConfig.user?.name}? This will permanently remove their profile, sensor logs, and all associated ecosystem data. This action is irreversible.`}
+                onConfirm={performDelete}
+                onCancel={() => setConfirmConfig({ isOpen: false, user: null })}
+                confirmText="Delete Permanently"
+                type="danger"
+            />
         </div>
     );
 };

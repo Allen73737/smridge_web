@@ -13,7 +13,6 @@ const LoadingScreen = ({ onComplete }) => {
             setProgress((prev) => {
                 if (prev >= 100) {
                     clearInterval(timer);
-                    onComplete(); 
                     return 100;
                 }
                 return prev + 4;
@@ -21,7 +20,13 @@ const LoadingScreen = ({ onComplete }) => {
         }, intervalTime);
 
         return () => clearInterval(timer);
-    }, [onComplete]);
+    }, []);
+
+    useEffect(() => {
+        if (progress === 100) {
+            onComplete();
+        }
+    }, [progress, onComplete]);
 
     return (
         <motion.div

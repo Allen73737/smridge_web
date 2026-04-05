@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Save, AlertCircle, RefreshCw } from 'lucide-react';
 import styles from './Thresholds.module.css';
 import api from '../../../services/api';
 import socket from '../../../services/socket';
+import { useToast } from '../../../context/ToastContext';
 
 const RangeControl = ({ label, minVal, maxVal, min, max, unit, onChangeMin, onChangeMax, color }) => {
     return (
@@ -94,7 +95,7 @@ const RangeControl = ({ label, minVal, maxVal, min, max, unit, onChangeMin, onCh
 import { useHistory } from '../../../hooks/useHistory';
 
 const Thresholds = () => {
-    const [settings, setSettings, undo, redo, canUndo, canRedo] = useHistory({
+    const [settings, setSettings, undo, redo, _canUndo, _canRedo] = useHistory({
         tempMin: 0,
         tempMax: 10.0,
         humMin: 40,
@@ -104,7 +105,7 @@ const Thresholds = () => {
     });
 
     const [isSaving, setIsSaving] = useState(false);
-    const [showSaved, setShowSaved] = useState(false);
+    const { showToast } = useToast();
 
     // Keyboard shortcuts for Undo/Redo
     useEffect(() => {
@@ -135,7 +136,7 @@ const Thresholds = () => {
                     gasMin: data.gasLimitMin || 0.1,
                     gasMax: data.gasLimitMax || 1.0,
                 });
-            } catch (error) {
+            } catch {
                 console.error("Failed to fetch thresholds");
             }
         };
@@ -153,7 +154,7 @@ const Thresholds = () => {
         });
 
         return () => socket.off('thresholdUpdated');
-    }, []);
+    }, [setSettings]);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -167,10 +168,9 @@ const Thresholds = () => {
                 gasLimitMax: settings.gasMax,
                 freshnessWarningLevel: 50
             });
-            setShowSaved(true);
-            setTimeout(() => setShowSaved(false), 2000);
-        } catch (error) {
-            alert('Failed to save settings');
+            showToast('System configuration updated successfully', 'success');
+        } catch {
+            showToast('Failed to save settings. Please try again.', 'error');
         } finally {
             setIsSaving(false);
         }
@@ -233,18 +233,7 @@ const Thresholds = () => {
                             {isSaving ? <RefreshCw className={styles.spin} size={18} /> : <Save size={18} />}
                             {isSaving ? 'Saving...' : 'Update Configuration'}
                         </button>
-                        <AnimatePresence>
-                            {showSaved && (
-                                <motion.div
-                                    initial={{ opacity: 0, x: 10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0 }}
-                                    className={styles.savedMsg}
-                                >
-                                    Changes Saved!
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                            {/* Toast handles feedback now */}
                     </div>
                 </motion.div>
 
