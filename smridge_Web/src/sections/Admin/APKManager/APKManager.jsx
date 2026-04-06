@@ -264,7 +264,17 @@ const BuildManager = () => {
                                         </button>
                                     )}
                                     <button 
-                                        onClick={() => window.open(build.isLink ? (build.externalLink || build.fileUrl) : (build.fileUrl && (build.fileUrl.startsWith('http') ? build.fileUrl : `${api.defaults.baseURL.replace('/api', '')}${build.fileUrl}`)), '_blank')}
+                                        onClick={() => {
+                                            let finalUrl = '';
+                                            if (build.isLink) {
+                                                finalUrl = build.externalLink || build.fileUrl;
+                                            } else if (build.fileUrl && build.fileUrl.startsWith('http')) {
+                                                finalUrl = build.fileUrl.replace('http://', 'https://');
+                                            } else {
+                                                finalUrl = `${api.defaults.baseURL.replace('/api', '')}${build.fileUrl}`;
+                                            }
+                                            window.open(finalUrl, '_blank');
+                                        }}
                                         className={styles.miniBtn}
                                         title="Download/Open"
                                     >

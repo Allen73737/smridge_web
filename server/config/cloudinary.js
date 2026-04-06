@@ -18,7 +18,7 @@ const storage = new CloudinaryStorage({
         public_id: (req, file) => {
             const ext = file.originalname.split('.').pop();
             const name = file.originalname.split('.').shift();
-            return `${name}-${Date.now()}`;
+            return `${name}-${Date.now()}.${ext}`;
         },
     },
 });

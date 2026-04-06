@@ -43,19 +43,21 @@ const DownloadCard = ({ platform, data }) => {
                                 {build.isLatest && <span className={styles.latestBadge}>LATEST</span>}
                                 <span className={styles.vSize}>{build.fileSize}</span>
                             </div>
-                            <a 
-                                href={
-                                    build.isLink || (build.fileUrl && build.fileUrl.startsWith('http'))
-                                        ? build.fileUrl 
-                                        : `${api.defaults.baseURL.replace('/api', '')}${build.fileUrl}`
-                                } 
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                download={!build.isLink && !(build.fileUrl && build.fileUrl.startsWith('http'))} 
-                                className={styles.miniDownloadBtn}
-                            >
-                                <Download size={16} />
-                            </a>
+                                <a 
+                                    href={
+                                        build.isLink 
+                                            ? (build.externalLink || build.fileUrl) 
+                                            : (build.fileUrl && build.fileUrl.startsWith('http'))
+                                                ? build.fileUrl.replace('http://', 'https://')
+                                                : `${api.defaults.baseURL.replace('/api', '')}${build.fileUrl}`
+                                    } 
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download={!build.isLink && !(build.fileUrl && build.fileUrl.startsWith('http'))} 
+                                    className={styles.miniDownloadBtn}
+                                >
+                                    <Download size={16} />
+                                </a>
                         </div>
                     ))}
                 </div>
