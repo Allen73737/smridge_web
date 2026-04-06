@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, User, ArrowRight } from 'lucide-react';
+import { Lock, User, ArrowRight, ArrowLeft } from 'lucide-react';
 import styles from './Login.module.css';
 
 import { useAuth } from '../../../context/AuthContext';
@@ -37,6 +37,14 @@ const Login = () => {
 
     return (
         <div className={styles.container}>
+            <button 
+                className={styles.backBtn}
+                onClick={() => navigate('/')}
+            >
+                <ArrowLeft size={18} />
+                <span>Return to Website</span>
+            </button>
+
             <motion.div
                 className={styles.loginCard}
                 initial={{ opacity: 0, y: 20 }}

@@ -9,6 +9,32 @@
     overflow: hidden;
 }
 
+.backBtn {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.backBtn:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: rgba(0, 240, 255, 0.05);
+    transform: translateX(-5px);
+}
+
 .loginCard {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
@@ -143,6 +169,13 @@
 
     .logo {
         margin-bottom: 2rem;
+    }
+
+    .backBtn {
+        top: 1rem;
+        left: 1rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
     }
 
     .logo h1 {
