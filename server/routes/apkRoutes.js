@@ -9,6 +9,8 @@ const {
     getAppHistory,
     deleteAPK,
     setLatestAPK,
+    generateSignature,
+    registerAPK,
 } = require('../controllers/apkController');
 const { protect } = require('../middleware/authMiddleware');
 const { admin } = require('../middleware/roleMiddleware');
@@ -50,6 +52,8 @@ const upload = multer({
 });
 
 router.post('/upload', protect, admin, upload.single('file'), uploadAPK);
+router.get('/sign', protect, admin, generateSignature);
+router.post('/register', protect, admin, registerAPK);
 router.get('/all', protect, admin, getAllAPKs);
 router.get('/latest/:platform', getLatestAPK);
 router.get('/history/:platform', getAppHistory);

@@ -36,7 +36,19 @@ const DownloadCard = ({ platform, data }) => {
 
             {data && data.length > 0 ? (
                 <div className={styles.versionList}>
-                    {data.map((build, index) => (
+                    {data.map((build) => {
+                        let finalUrl = '';
+                        if (build.isLink) {
+                            finalUrl = build.externalLink || build.fileUrl || '';
+                        } else if (build.fileUrl && build.fileUrl.startsWith('http')) {
+                            finalUrl = build.fileUrl.replace('http://', 'https://');
+                            if (finalUrl.includes('/upload/') && !finalUrl.includes('fl_attachment')) {
+                                finalUrl = finalUrl.replace('/upload/', '/upload/fl_attachment/');
+                            }
+                        } else if (build.fileUrl) {
+                            finalUrl = `${api.defaults.baseURL.replace('/api', '')}${build.fileUrl}`;
+                        }
+                        return (
                         <div key={build._id} className={styles.versionItem}>
                             <div className={styles.vInfo}>
                                 <span className={styles.vLabel}>v{build.version}</span>
@@ -44,13 +56,7 @@ const DownloadCard = ({ platform, data }) => {
                                 <span className={styles.vSize}>{build.fileSize}</span>
                             </div>
                                 <a 
-                                    href={
-                                        build.isLink 
-                                            ? (build.externalLink || build.fileUrl) 
-                                            : (build.fileUrl && build.fileUrl.startsWith('http'))
-                                                ? build.fileUrl.replace('http://', 'https://')
-                                                : `${api.defaults.baseURL.replace('/api', '')}${build.fileUrl}`
-                                    } 
+                                    href={finalUrl} 
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     download={!build.isLink && !(build.fileUrl && build.fileUrl.startsWith('http'))} 
@@ -59,7 +65,7 @@ const DownloadCard = ({ platform, data }) => {
                                     <Download size={16} />
                                 </a>
                         </div>
-                    ))}
+                    )})}
                 </div>
             ) : (
                 <div className={styles.comingSoon}>

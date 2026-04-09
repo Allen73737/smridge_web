@@ -1,5 +1,6 @@
 const APK = require('../models/APK');
 const ActivityLog = require('../models/ActivityLog');
+const { cloudinary } = require('../config/cloudinary');
 
 // @desc    Upload new APK
 // @route   POST /api/apk/upload
@@ -168,6 +169,85 @@ const deleteAPK = async (req, res) => {
     }
 };
 
+// @desc    Generate a Cloudinary signed upload signature for direct browser upload
+// @route   GET /api/apk/sign
+// @access  Private/Admin
+const generateSignature = (req, res) => {
+    try {
+        const timestamp = Math.round(Date.now() / 1000);
+        const folder = 'smridge_apks';
+        const { publicId } = req.query;
+
+        const paramsToSign = { timestamp, folder };
+        if (publicId) {
+            paramsToSign.public_id = publicId;
+        }
+
+        const signature = cloudinary.utils.api_sign_request(
+            paramsToSign,
+            process.env.CLOUDINARY_API_SECRET
+        );
+
+        res.json({
+            signature,
+            timestamp,
+            apiKey: process.env.CLOUDINARY_API_KEY,
+            cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+            folder,
+        });
+    } catch (error) {
+        console.error('Signature generation error:', error);
+        res.status(500).json({ message: 'Could not generate upload signature' });
+    }
+};
+
+// @desc    Register a directly-uploaded Cloudinary APK into the database
+// @route   POST /api/apk/register
+// @access  Private/Admin
+const registerAPK = async (req, res) => {
+    try {
+        const { version, releaseNotes, platform, fileUrl, fileSize, isLink, externalLink } = req.body;
+
+        if (!fileUrl && isLink !== true && isLink !== 'true') {
+            return res.status(400).json({ message: 'No file URL or external link provided' });
+        }
+
+        const apkData = {
+            version,
+            platform: platform || 'android',
+            releaseNotes,
+            isLink: isLink === true || isLink === 'true',
+            fileUrl: isLink === true || isLink === 'true' ? externalLink : fileUrl,
+            fileSize: fileSize || 'Unknown',
+        };
+
+        // Set as latest by default for new uploads
+        await APK.updateMany({ platform: apkData.platform }, { isLatest: false });
+        apkData.isLatest = true;
+
+        const apk = await APK.create(apkData);
+
+        if (apk) {
+            const log = await ActivityLog.create({
+                userId: req.user._id,
+                action: 'DEPLOY_BUILD',
+                role: 'admin',
+                details: `Deployed ${platform} build v${version}${apkData.isLink ? ' (Link)' : ' (Direct Upload)'}`,
+            });
+            await log.populate('userId', 'name email');
+            const io = req.app.get('socketio');
+            if (io) io.emit('logAdded', log);
+
+            res.status(201).json(apk);
+        } else {
+            res.status(400).json({ message: 'Invalid APK data' });
+        }
+    } catch (error) {
+        console.error('Register APK error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     uploadAPK,
     getLatestAPK,
@@ -175,4 +255,6 @@ module.exports = {
     getAppHistory,
     deleteAPK,
     setLatestAPK,
+    generateSignature,
+    registerAPK,
 };
