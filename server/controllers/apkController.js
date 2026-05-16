@@ -28,8 +28,8 @@ const uploadAPK = async (req, res) => {
             apkData.fileUrl = externalLink;
             apkData.fileSize = 'Link';
         } else {
-            // req.file.path is the URL provided by Cloudinary
-            apkData.fileUrl = req.file.path;
+            // Local disk storage — build a relative URL for the static /uploads route
+            apkData.fileUrl = `/uploads/${req.file.filename}`;
             apkData.fileSize = `${(req.file.size / (1024 * 1024)).toFixed(2)} MB`;
         }
         
@@ -143,21 +143,35 @@ const deleteAPK = async (req, res) => {
         if (apk) {
             console.log(`--- Admin ${req.user._id} is deleting ${apk.platform} v${apk.version} ---`);
             
-            // Clean up the file from Cloudinary if it's a direct upload (not an external link)
-            if (!apk.isLink && apk.fileUrl && apk.fileUrl.includes('cloudinary')) {
-                try {
-                    // Extract public_id from Cloudinary URL
-                    // URL format: https://res.cloudinary.com/<cloud>/raw/upload/[fl_attachment/]v123/smridge_apks/filename.apk
-                    const urlParts = apk.fileUrl.split('/');
-                    const folderIndex = urlParts.findIndex(part => part === 'smridge_apks');
-                    if (folderIndex !== -1) {
-                        const fileName = urlParts.slice(folderIndex).join('/');
-                        console.log(`Deleting Cloudinary resource: ${fileName}`);
-                        await cloudinary.uploader.destroy(fileName, { resource_type: 'raw' });
+            // Clean up the physical file
+            if (!apk.isLink && apk.fileUrl) {
+                // Local file cleanup (files stored in /uploads/)
+                if (apk.fileUrl.startsWith('/uploads/')) {
+                    try {
+                        const fs = require('fs');
+                        const path = require('path');
+                        const filePath = path.join(__dirname, '..', apk.fileUrl);
+                        if (fs.existsSync(filePath)) {
+                            fs.unlinkSync(filePath);
+                            console.log(`Deleted local file: ${filePath}`);
+                        }
+                    } catch (fsErr) {
+                        console.error('Local file cleanup failed (non-blocking):', fsErr.message);
                     }
-                } catch (cloudErr) {
-                    console.error('Cloudinary cleanup failed (non-blocking):', cloudErr.message);
-                    // Non-blocking — still delete the DB record even if cloud cleanup fails
+                }
+                // Legacy Cloudinary cleanup (for old uploads that used Cloudinary)
+                else if (apk.fileUrl.includes('cloudinary')) {
+                    try {
+                        const urlParts = apk.fileUrl.split('/');
+                        const folderIndex = urlParts.findIndex(part => part === 'smridge_apks');
+                        if (folderIndex !== -1) {
+                            const fileName = urlParts.slice(folderIndex).join('/');
+                            console.log(`Deleting Cloudinary resource: ${fileName}`);
+                            await cloudinary.uploader.destroy(fileName, { resource_type: 'raw' });
+                        }
+                    } catch (cloudErr) {
+                        console.error('Cloudinary cleanup failed (non-blocking):', cloudErr.message);
+                    }
                 }
             }
 

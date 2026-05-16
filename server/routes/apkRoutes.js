@@ -42,9 +42,9 @@ function checkFileType(file, cb) {
     }
 }
 
-// Use Cloudinary for primary storage
+// Use local disk storage (bypasses Cloudinary's 10 MB free-tier limit)
 const upload = multer({
-    storage: cloudinaryStorage,
+    storage: localStorage,
     limits: { fileSize: 500 * 1024 * 1024 }, // 500 MB Limit
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
