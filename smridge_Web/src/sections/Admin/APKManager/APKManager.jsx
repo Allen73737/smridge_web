@@ -10,14 +10,90 @@ import api from '../../../services/api';
 import { useToast } from '../../../context/ToastContext';
 
 /**
- * Uploads a file directly from the browser to Cloudinary using a signed URL.
- * This bypasses Vercel's 4.5 MB serverless body limit entirely.
+ * Uploads a file directly from the browser to Cloudinary using chunked upload.
+ * Supports files up to 500 MB+ by splitting into 20 MB chunks.
+ * Each chunk has automatic retry with exponential backoff.
  *
  * Steps:
  *  1. GET /api/apk/sign         → server returns {signature, timestamp, apiKey, cloudName, folder}
- *  2. POST to Cloudinary upload API directly with the file
+ *  2. Chunked POST to Cloudinary upload API directly (20 MB per chunk, 3 retries each)
  *  3. POST /api/apk/register    → send Cloudinary URL + metadata to save in MongoDB
  */
+
+// Helper: upload a single chunk with retry logic
+const uploadChunkWithRetry = (cloudinaryUrl, formData, headers, onChunkProgress, maxRetries = 3) => {
+    return new Promise((resolve, reject) => {
+        let attempt = 0;
+
+        const tryUpload = () => {
+            attempt++;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', cloudinaryUrl, true);
+
+            // Set chunked upload headers (only real HTTP headers)
+            Object.entries(headers).forEach(([key, value]) => {
+                xhr.setRequestHeader(key, value);
+            });
+
+            // Per-chunk progress (caller handles global tracking)
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable && onChunkProgress) {
+                    onChunkProgress(e.loaded, e.total);
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status === 200 || xhr.status === 201) {
+                    try {
+                        resolve(JSON.parse(xhr.responseText));
+                    } catch {
+                        resolve({}); // Intermediate chunks may return minimal JSON
+                    }
+                } else {
+                    let errMsg = `Cloudinary error (HTTP ${xhr.status})`;
+                    try {
+                        const err = JSON.parse(xhr.responseText);
+                        errMsg = err?.error?.message || errMsg;
+                    } catch { /* use default errMsg */ }
+
+                    if (attempt < maxRetries) {
+                        const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+                        console.warn(`Chunk upload attempt ${attempt} failed: ${errMsg}. Retrying in ${delay / 1000}s...`);
+                        setTimeout(tryUpload, delay);
+                    } else {
+                        reject(new Error(`${errMsg} (after ${maxRetries} attempts)`));
+                    }
+                }
+            };
+
+            xhr.onerror = () => {
+                if (attempt < maxRetries) {
+                    const delay = Math.pow(2, attempt) * 1000;
+                    console.warn(`Chunk network error on attempt ${attempt}. Retrying in ${delay / 1000}s...`);
+                    setTimeout(tryUpload, delay);
+                } else {
+                    reject(new Error(`Network error after ${maxRetries} attempts. Check your connection and Cloudinary plan limits.`));
+                }
+            };
+
+            xhr.timeout = 120000; // 2 minute timeout per chunk
+            xhr.ontimeout = () => {
+                if (attempt < maxRetries) {
+                    const delay = Math.pow(2, attempt) * 1000;
+                    console.warn(`Chunk timed out on attempt ${attempt}. Retrying in ${delay / 1000}s...`);
+                    setTimeout(tryUpload, delay);
+                } else {
+                    reject(new Error(`Upload timed out after ${maxRetries} attempts. Your connection may be too slow for this file size.`));
+                }
+            };
+
+            xhr.send(formData);
+        };
+
+        tryUpload();
+    });
+};
+
 const directUploadToCloudinary = async ({ file, version, notes, platform, apiInstance, onProgress }) => {
     // Generate publicId before signing
     const ext = file.name.split('.').pop();
@@ -28,52 +104,60 @@ const directUploadToCloudinary = async ({ file, version, notes, platform, apiIns
     onProgress({ step: 1, percent: 0, label: 'Signing upload credentials...' });
     const { data: creds } = await apiInstance.get('/apk/sign', { params: { publicId } });
 
-    // ── Step 2: Upload the file directly → Cloudinary ──
-    onProgress({ step: 2, percent: 0, label: 'Uploading to Cloudinary...' });
+    // ── Step 2: Chunked upload directly to Cloudinary ──
+    onProgress({ step: 2, percent: 0, label: 'Preparing chunked upload...' });
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('api_key', creds.apiKey);
-    formData.append('timestamp', creds.timestamp);
-    formData.append('signature', creds.signature);
-    formData.append('folder', creds.folder);
-    formData.append('public_id', publicId);
-    formData.append('resource_type', 'raw');
-
+    const CHUNK_SIZE = 20 * 1024 * 1024; // 20 MB per chunk (Cloudinary minimum is 5 MB)
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uniqueUploadId = `uqid-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${creds.cloudName}/raw/upload`;
 
-    const cloudinaryResult = await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', cloudinaryUrl, true);
+    let cloudinaryResult = null;
 
-        xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-                const pct = Math.round((e.loaded / e.total) * 100);
-                onProgress({ step: 2, percent: pct, label: `Uploading... ${pct}%` });
-            }
+    for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+        const isLastChunk = (i === totalChunks - 1);
+
+        const formData = new FormData();
+        formData.append('file', chunk, file.name); // preserve original filename
+        formData.append('api_key', creds.apiKey);
+        formData.append('timestamp', creds.timestamp);
+        formData.append('signature', creds.signature);
+        formData.append('folder', creds.folder);
+        formData.append('public_id', publicId);
+
+        const chunkLabel = `Uploading chunk ${i + 1}/${totalChunks}`;
+        onProgress({ step: 2, percent: Math.round((start / file.size) * 100), label: chunkLabel });
+
+        const headers = {
+            'X-Unique-Upload-Id': uniqueUploadId,
+            'Content-Range': `bytes ${start}-${end - 1}/${file.size}`,
         };
 
-        xhr.onload = () => {
-            if (xhr.status === 200) {
-                resolve(JSON.parse(xhr.responseText));
-            } else {
-                try {
-                    const err = JSON.parse(xhr.responseText);
-                    reject(new Error(err?.error?.message || `Cloudinary error: ${xhr.status}`));
-                } catch {
-                    reject(new Error(`Cloudinary upload failed (HTTP ${xhr.status})`));
-                }
-            }
+        const onChunkProgress = (loaded) => {
+            const globalLoaded = start + loaded;
+            const pct = Math.round((globalLoaded / file.size) * 100);
+            onProgress({ step: 2, percent: Math.min(pct, 99), label: `Uploading... ${Math.min(pct, 99)}%` });
         };
 
-        xhr.onerror = () => reject(new Error('Network error during Cloudinary upload'));
-        xhr.send(formData);
-    });
+        cloudinaryResult = await uploadChunkWithRetry(cloudinaryUrl, formData, headers, onChunkProgress, 3);
+
+        // Log chunk completion
+        console.log(`✓ Chunk ${i + 1}/${totalChunks} uploaded (${((end - start) / (1024 * 1024)).toFixed(1)} MB)${isLastChunk ? ' — FINAL' : ''}`);
+    }
+
+    onProgress({ step: 2, percent: 100, label: 'Upload complete!' });
 
     // Ensure HTTPS URL + preserve extension + Force Download (fl_attachment)
     let fileUrl = (cloudinaryResult.secure_url || cloudinaryResult.url || '').replace('http://', 'https://');
     if (fileUrl.includes('/upload/') && !fileUrl.includes('fl_attachment')) {
         fileUrl = fileUrl.replace('/upload/', '/upload/fl_attachment/');
+    }
+
+    if (!fileUrl) {
+        throw new Error('Cloudinary did not return a file URL. The upload may have failed silently — check your Cloudinary dashboard.');
     }
 
     // ── Step 3: Register the Cloudinary URL in MongoDB ──
