@@ -60,7 +60,8 @@ const DownloadCard = ({ platform, data }) => {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     download={!build.isLink && !(build.fileUrl && build.fileUrl.startsWith('http'))} 
-                                    className={styles.miniDownloadBtn}
+                                    className={styles.miniDownload}
+                                    title={`Download v${build.version}`}
                                 >
                                     <Download size={16} />
                                 </a>

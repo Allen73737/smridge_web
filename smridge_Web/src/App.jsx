@@ -18,7 +18,7 @@ import Login from './sections/Admin/Login/Login';
 
 import Dashboard from './sections/Admin/Dashboard/Dashboard';
 import UsersManagement from './sections/Admin/Users/Users';
-import FridgeStatus from './sections/Admin/FridgeStatus/FridgeStatus';
+
 import Thresholds from './sections/Admin/Thresholds/Thresholds';
 import BuildManager from './sections/Admin/APKManager/APKManager';
 import ActivityLogs from './sections/Admin/ActivityLogs/ActivityLogs';
@@ -158,7 +158,7 @@ const App = () => {
                   <Route path="/admin/*" element={<AdminLayout />}>
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="users" element={<UsersManagement />} />
-                    <Route path="fridge" element={<FridgeStatus />} />
+
                     <Route path="thresholds" element={<Thresholds />} />
                     <Route path="apk" element={<BuildManager />} />
                     <Route path="team" element={<TeamManagement />} />

@@ -143,6 +143,24 @@ const deleteAPK = async (req, res) => {
         if (apk) {
             console.log(`--- Admin ${req.user._id} is deleting ${apk.platform} v${apk.version} ---`);
             
+            // Clean up the file from Cloudinary if it's a direct upload (not an external link)
+            if (!apk.isLink && apk.fileUrl && apk.fileUrl.includes('cloudinary')) {
+                try {
+                    // Extract public_id from Cloudinary URL
+                    // URL format: https://res.cloudinary.com/<cloud>/raw/upload/[fl_attachment/]v123/smridge_apks/filename.apk
+                    const urlParts = apk.fileUrl.split('/');
+                    const folderIndex = urlParts.findIndex(part => part === 'smridge_apks');
+                    if (folderIndex !== -1) {
+                        const fileName = urlParts.slice(folderIndex).join('/');
+                        console.log(`Deleting Cloudinary resource: ${fileName}`);
+                        await cloudinary.uploader.destroy(fileName, { resource_type: 'raw' });
+                    }
+                } catch (cloudErr) {
+                    console.error('Cloudinary cleanup failed (non-blocking):', cloudErr.message);
+                    // Non-blocking — still delete the DB record even if cloud cleanup fails
+                }
+            }
+
             // Standard Mongoose v6+ deletion
             await APK.deleteOne({ _id: req.params.id });
 

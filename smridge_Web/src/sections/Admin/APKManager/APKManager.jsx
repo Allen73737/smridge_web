@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+// eslint-disable-next-line no-unused-vars
+import { AnimatePresence, motion } from 'framer-motion';
 import {
     Upload, FileCode, CheckCircle, Download, Smartphone, Apple,
     Star, Trash2, Link2, Info, X, AlertTriangle, Loader2

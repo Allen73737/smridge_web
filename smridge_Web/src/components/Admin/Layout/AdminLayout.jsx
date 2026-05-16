@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    LayoutDashboard, Users, Thermometer, Settings,
+    LayoutDashboard, Users, Settings,
     Smartphone, FileText, LogOut, Menu, ChevronLeft,
     ExternalLink, Info
 } from 'lucide-react';
@@ -70,7 +70,7 @@ const AdminLayout = () => {
     const menuItems = [
         { icon: LayoutDashboard, label: 'Overview', path: '/admin/dashboard' },
         { icon: Users, label: 'Users', path: '/admin/users' },
-        { icon: Thermometer, label: 'Fridge Status', path: '/admin/fridge' },
+
         { icon: Settings, label: 'Thresholds', path: '/admin/thresholds' },
         { icon: Smartphone, label: 'Build Manager', path: '/admin/apk' },
         { icon: Users, label: 'Team Settings', path: '/admin/team' },
@@ -203,7 +203,7 @@ const AdminLayout = () => {
                     {[
                         { icon: LayoutDashboard, label: 'Dash', path: '/admin/dashboard' },
                         { icon: Users, label: 'Users', path: '/admin/users' },
-                        { icon: Thermometer, label: 'Fridge', path: '/admin/fridge' },
+
                         { icon: Settings, label: 'Rules', path: '/admin/thresholds' },
                         { icon: Smartphone, label: 'Builds', path: '/admin/apk' },
                         { icon: FileText, label: 'Logs', path: '/admin/logs' },
